@@ -1,0 +1,29 @@
+Package: egoTERGM
+Date: 2017-08-08
+Type: Package
+Title: Estimation of ego-Temporal Exponential Random Graph Models (ego-TERGM) via Expectation Maximization (EM)
+Version: 0.1.0
+Authors@R: c(person(given = c("Benjamin", "W."), family = "Campbell", email = "campbell.1721@osu.edu", role = c("aut", "cre")))
+Author: Benjamin W. Campbell [aut, cre]
+Maintainer: Benjamin W. Campbell <campbell.1721@osu.edu>
+URL: http://github.com/benjamin-w-campbell/egoTERGM
+Description: Estimation of ego-TERGMs with two-stage estimation including initialization through k-means clustering on TERGM model parameters and EM.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1.9000
+Depends: 
+  R (>= 3.3.3),
+  statnet (>= 2016.9),
+  parallel (>= 3.3.3)
+Imports:
+  boot (>= 1.3-18),
+  ergm (>= 3.7.1),
+  network (>= 1.13.0),
+  stats (>= 3.3.3),
+  btergm (>= 1.9.0),
+  sna (>= 2.4),
+  GGally (>= 1.3.2)
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
