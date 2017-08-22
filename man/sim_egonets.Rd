@@ -2,10 +2,11 @@
 % Please edit documentation in R/sim_egonets.R
 \name{sim_egonets}
 \alias{sim_egonets}
-\title{Simulation of longitudinal ego-networks according to a mixture of data generating processes}
+\title{Simulation of longitudinal ego-networks according to a mixture of data generating processes and fitting of ego-TERGM to that network.}
 \usage{
 sim_egonets(form = NULL, params = NULL, roles = NULL, N_per_role = NULL,
-  t_steps = NULL, egonet_size = NULL)
+  t_steps = NULL, egonet_size = NULL, R = 10, parallel = "no",
+  ncpus = 1, steps = 50, tol = 1e-06, seed = 12345)
 }
 \arguments{
 \item{form}{A vector of ERGM terms that should be used to generate the networks.}
@@ -18,21 +19,41 @@ sim_egonets(form = NULL, params = NULL, roles = NULL, N_per_role = NULL,
 
 \item{t_steps}{An integer for the number of time steps that each ego-network should be observed across.}
 
-\item{egonet_size}{An integer for the size of each ego-network simulated.}
+\item{egonet_size}{An integer for the size of each ego-network simulated.
+#' @param seed The seed set to replicate analysis for pseudorandom number generator.}
+
+\item{R}{The number of bootstrap replications that should be used for the estimation of a bootstrapped MPLE estimated TERGM for model initialization.  Defaults to 10.}
+
+\item{parallel}{How the BTERGM should be computed, either with parallel processing ("multicore", "snow") or no parallel processing ("no").  Defaults to no.}
+
+\item{ncpus}{The number of CPUs that should should be used for estimation, defaults to 1.}
+
+\item{steps}{The number of default EM steps that should be taken, defaults to 50.}
+
+\item{tol}{The difference in parameter estimates between EM iterations to determine if the algorithm has converged.  Defaults to 1e-6.}
+
+\item{seed}{The seed for simulation}
 }
 \value{
-A list of simulated ego-networks.
+A list of simulated ego-networks and the output of the ego_tergm function fit to this.
 }
 \description{
-This function estimates an ego-TERGM.
+This function simulated longitudinal ego-networks and estimates an ego-TERGM. Useful for monte carlos and proofs of concept.
 }
 \examples{
+\dontrun{
 net <- sim_egonets(form = c("edges", "gwesp(0.8,fixed=TRUE)", "gwdegree(decay=0.8,fixed=TRUE)"),
                   params = rbind(c(-3,1,0), c(-1,-2,-1), c(-2,0,2)),
                   roles = 3,
                   N_per_role = 10,
                   t_steps = 3,
-                  egonet_size = 20)
+                  egonet_size = 20,
+                  R = 30,
+                  parallel = "multicore",
+                  ncpus = 3,
+                  steps = 50,
+                  tol = 1e-6)
+}
 }
 \references{
 Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
