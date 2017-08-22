@@ -333,7 +333,7 @@ ego_tergm <- function(net = NULL,
   pseudo.loglikelihood<-function(S,tmp.theta)  # Establish a pseudo-loglikelihood function
   {
     loglike=sapply(S, function (S) sum(stats::dbinom(S$response*S$weights,S$weights,
-                                              boot::inv.logit(S$offset+as.matrix(S$predictor)%*%tmp.theta),log=TRUE),na.rm=1))
+                                                     boot::inv.logit(S$offset+as.matrix(S$predictor)%*%tmp.theta),log=TRUE),na.rm=1))
     loglike=sum(loglike)
     if(!is.finite(loglike)|loglike<LOWESTLL)
       loglike=LOWESTLL# avoids numerical errors

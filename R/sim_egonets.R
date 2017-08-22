@@ -54,8 +54,7 @@ sim_egonets <- function(form = NULL, params = NULL, roles = NULL, N_per_role = N
     }
     sim.x[[k]] <- sim.net
   }
-  sim.K <- sim.list
+  sim.K <- sim.x
 
   return(sim.K)
-
 }
