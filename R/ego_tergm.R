@@ -80,6 +80,9 @@ ego_tergm <- function(net = NULL,
                       seed = 12345,
                       R = 10, parallel = "no", ncpus = 1,
                       steps = 50, tol = 1e-6){
+
+  # tested prior to 9/3/17
+
   N = max(unlist(lapply(net, function(x) network::network.size(x))))
 
   ########################################################################
