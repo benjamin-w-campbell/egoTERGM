@@ -1,7 +1,7 @@
 #' Estimation of ego-Temporal Exponential Random Graph Model (ego-TERGM) using Expectation Maximization (EM).
 #'
 #' This function estimates an ego-TERGM.
-#' @param net The longitudinally observed network that an ego-TERGM will be fit on.  Must be presented as a list of networks.  Any vertex attributes should be attached to networks
+#' @param net The longitudinally observed network that an ego-TERGM will be fit on.  Must be presented as a list of networks.  Any vertex attributes should be attached to networks.
 #' @param core_size The order of alters to include. The defaul value of one implies only looking at an ego's alters and the connections among them.
 #' @param min_size  The minimum number of nodes an ego-network must achieve to be included.  Defaults to five.
 #' @param roles The number of roles that should be fit.  Defaults to 3.
@@ -270,7 +270,7 @@ ego_tergm <- function(net = NULL,
         }
         if(length(nets) == 1 & t == 1){
           vertex_ids <- network::get.vertex.attribute(nets[[1]], 'vertex.names')
-          indices <- which(vertex_ids %in% network::get.vertex.attribute(net[[t]], 'vertex.names')) #
+          indices <- which(network::get.vertex.attribute(net[[t]], 'vertex.names') %in% vertex_ids) #
           for(att in network::list.vertex.attributes(net[[t]])){
             network::set.vertex.attribute(nets[[1]], att, network::get.vertex.attribute(net[[t]], att)[indices])
           }
@@ -526,7 +526,8 @@ ego_tergm <- function(net = NULL,
   roles_out <- data.frame(Id = remaining_vertices,
                           Role = z)
 
-  return(list(lambda = lambda,
+  return(list(model.fit = "egoTERGM",
+              lambda = lambda,
               group.theta = group.theta,
               EE.BIC = EE.BIC,
               TS.BIC = TS.BIC,
