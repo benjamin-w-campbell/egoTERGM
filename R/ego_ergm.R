@@ -299,7 +299,7 @@ ego_ergm <- function(net = NULL,
     obs.S[[i]]$offset<-ergm.offset[i] # for each observation term i, include an offset term in that vector
   }
 
-  fit.mix.egoergm<-function(ego.terms, init, obs.S, G, p.ego.terms=NULL, p.group.theta=NULL, N = length(obs.S), x = x, STEPS = 500)
+  fit.mix.egoergm<-function(ego.terms, init, obs.S, G, p.ego.terms=NULL, p.group.theta=NULL, N = length(obs.S), x = x, STEPS = 500, M)
     # Specify a function to perform EM algorithm to find ego-ERGM parameters and memberships.
   {
     Nterms<-length(ego.terms)
@@ -318,10 +318,10 @@ ego_ergm <- function(net = NULL,
       # E-step
       #cat("E-step", l, "\t")
       old_lambda<-lambda
-      for (i in 1:N)
-      {
-        for (g in 1:G)
+      for (i in 1:N){
+        for (g in 1:G){
           lambda[i,g]<-log(TAU[g]) + approx.loglikelihood(obs.S[[i]],group.theta[g,],group.theta[g,]*0,M,form,0)
+        }
         lambda[i,]<-lambda[i,]-max(lambda[i,])
       }
       lambda<-exp(lambda)
