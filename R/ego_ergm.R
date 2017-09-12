@@ -52,7 +52,7 @@
 #' rm(list=setdiff(ls(), "net"))
 #'
 #' # Reduce down to first time-step
-#' ego_ergm_fit <- ego_ergm(net = net,
+#' ego_ergm_fit <- ego_ergm(net = net[[1]],
 #'                           form = c("edges", "mutual", "triangle",
 #'                                    "nodeicov('idegsqrt')", "nodeocov('odegsqrt')",
 #'                                    "nodematch('sex')"),
