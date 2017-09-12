@@ -72,7 +72,7 @@ ego_ergm <- function(net = NULL,
                       core_size = 1, min_size = 5, roles = 3, directed = TRUE, edge_covariates = FALSE,
                       seed = 12345,
                       steps = 50, tol = 1e-6){
-
+  set.seed(seed)
   N = network.size(net)
 
   ########################################################################
@@ -196,17 +196,19 @@ ego_ergm <- function(net = NULL,
   pseudo.loglikelihood<-function(S,tmp.theta)  # Establish a pseudo-loglikelihood function
   {
     loglike=sum(dbinom(S$response*S$weights,S$weights,
-                       inv.logit(S$offset+as.matrix(S$predictor)%*%tmp.theta),log=TRUE),na.rm=1)
+                       boot::inv.logit(S$offset+as.matrix(S$predictor)%*%tmp.theta),log=TRUE),na.rm=1)
     if(!is.finite(loglike)|loglike<LOWESTLL)
       loglike=LOWESTLL# avoids numerical errors
     return(loglike)
   }
   # returns the negative so that optimization is towards maximum
-  n.pseudo.loglikelihood<-function(S,tmp.theta)
+  n.pseudo.loglikelihood<-function(S,tmp.theta){
     -pseudo.loglikelihood(S,tmp.theta)
+  }
 
-  approx.loglikelihood<-function(S,tmp.theta,old.theta,M,form,ll0) pseudo.loglikelihood(S,tmp.theta)
-
+  approx.loglikelihood<-function(S,tmp.theta,old.theta,M,form,ll0){
+    pseudo.loglikelihood(S,tmp.theta)
+    }
   # loglikelihood summed across all groups
   Mstepfunction<-function(tmp.theta,S,N,lambda,TAU,G)
   {
@@ -216,28 +218,29 @@ ego_ergm <- function(net = NULL,
       ans = ans + mstepfunction(tmp.theta[g,],S,N,lambda[,g],TAU[g])
     return(ans)
   }
-  n.approx.loglikelihood<-function(S,tmp.theta,old.theta,M,form,ll0)
+  n.approx.loglikelihood<-function(S,tmp.theta,old.theta,M,form,ll0){
     -approx.loglikelihood(S,tmp.theta,old.theta,M,form,ll0)
-  mstepfunction<-function(tmp.theta,S,N,lambda,TAU,old.theta,M,form,ll0)
+  }
+  mstepfunction<-function(tmp.theta,S,N,lambda,TAU,old.theta,M,form,ll0){
     sum(lambda * (log(TAU) + sapply(S,approx.loglikelihood,tmp.theta,old.theta,M,form,ll0)))
-  n.mstepfunction<-function(tmp.theta,S,N,lambda,TAU,old.theta,M,form,ll0)
+  }
+  n.mstepfunction<-function(tmp.theta,S,N,lambda,TAU,old.theta,M,form,ll0){
     -mstepfunction(tmp.theta,S,N,lambda,TAU,old.theta,M,form,ll0)
-
+  }
 
   ergm.offset <- rep(0,N)
 
   # For every network, get an offset term to adjust for network size
-  for (i in 1:N)
+  for (i in 1:N){
     ergm.offset[i]<- -log(network.size(x[[i]]))
-
+  }
   ego.terms <- form
 
   # fits the two-stage model which is also used to initialise the ego-ERGM EM algorithm.
 
   G <- roles
 
-  init.egoergm<-function(ego.terms, G, p.ego.terms=NULL) #Specify function in terms of ego.terms and G
-  {
+  init.egoergm<-function(ego.terms, G, p.ego.terms=NULL){ #Specify function in terms of ego.terms and G{
     Nterms<-length(ego.terms) #specifying a "nterms" object as the length of the number of ego.terms
     ergmformula <- paste("~", paste(ego.terms,collapse="+"),sep="")
     #Specify object ergmformula - paste command has three arguments - the stuff you want to paste together
@@ -249,13 +252,13 @@ ego_ergm <- function(net = NULL,
     #the ergm formula that is specied above
 
     ######### fit all ego-networks #############
-    if (is.null(p.ego.terms)) #if p.ego terms is null or empty, then do the following...
-    {
+    if (is.null(p.ego.terms)){ #if p.ego terms is null or empty, then do the following...
       theta<-matrix(0,N,Nterms) #Theta is set equal to a matrix filled with zeros, with N rows and Nterms columns
-      for (i in 1:N) #For loop indexed from 1 to N - for every indexed i in the theta matrix, do ergmMPLE in the form object,
+      for (i in 1:N){ #For loop indexed from 1 to N - for every indexed i in the theta matrix, do ergmMPLE in the form object,
         #with the output of the fit, which is a coefficient for the model terms for each N.
         theta[i,]<-ergmMPLE(form,output="fit")$coef
       # next couple of lines very ad-hoc but not an issue post EM convergence.
+      }
       theta[is.na(theta)]<-0
       theta[theta==-Inf]<- -1e6
       theta[theta==Inf]<- 1e6
@@ -269,12 +272,15 @@ ego_ergm <- function(net = NULL,
         group.theta<-initial.clusters$centers
         group.theta<-matrix(group.theta,G,Nterms)
       }
-      if (G==1)
+      if (G==1){
         group.theta<-matrix(apply(theta,2,mean),nrow=1)
+      }
       lambda<-matrix(NaN,N,G)
-      for (i in 1:N)
-        for (g in 1:G)
+      for (i in 1:N){
+        for (g in 1:G){
           lambda[i,g]<-1/(sqrt(t(group.theta[g,]-theta[i,])%*%(group.theta[g,]-theta[i,]))+tol) # nugget to avoid zero
+        }
+      }
       lambda<-lambda/apply(lambda,1,sum) # normalise lambda
       print("Finished kmeans initialisation")
     }
