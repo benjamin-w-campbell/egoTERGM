@@ -520,7 +520,7 @@ ego_tergm <- function(net = NULL,
   out <- fit.mix.egoergm(form=form,init=init,obs.S,roles) # run the EM algorithm
   lambda<-out$lambda
   group.theta<-out$theta
-  EE.BIC<-out$CS.EE.BIC
+  EE.BIC<-out$EE.BIC
   TS.BIC <- out$TS.EE.BIC
   z<-apply(lambda, 1, which.max)
   roles_out <- data.frame(Id = remaining_vertices,
