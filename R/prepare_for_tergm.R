@@ -58,7 +58,8 @@
 #'
 #' net_list <- prepare_for_tergm(ego_tergm_fit)
 #'
-#' role1_btergm <- btergm(net_list[[1]] ~ edges + mutual + triangle + nodeicov('idegsqrt') + nodeocov('odegsqrt') + nodematch('sex'),
+#' role1_btergm <- btergm(net_list[[1]] ~ edges + mutual + triangle + nodeicov('idegsqrt') +
+#'                                        nodeocov('odegsqrt') + nodematch('sex'),
 #'                        R = 500)
 #'
 #' }

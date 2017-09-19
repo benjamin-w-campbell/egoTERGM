@@ -41,7 +41,8 @@ ego_tergm(net = NULL, form = NULL, core_size = 1, min_size = 5,
 \value{
 A list of model results, including lambda (the probability of assignments), group.theta (the roles by terms cluster centroids),
         EE.BIC (the Salter-Townshend and Murphy BIC cross-sectional BIC), TS.BIC (the Campbell BIC penalizing for time-steps),
-       role_assignments (a data frame of the most likely assignments), and reduced_networks (A list of the networks with excluded egos).
+       role_assignments (a data frame of the most likely assignments), reduced_networks (A list of the networks with excluded egos), and
+       ego_nets (a list of ego-networks).
 }
 \description{
 This function estimates an ego-TERGM.
