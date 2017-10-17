@@ -20,7 +20,7 @@
 #'        role_assignments (a data frame of the most likely assignments), reduced_networks (A list of the networks with excluded egos), and
 #'        ego_nets (a list of ego-networks).
 #' @keywords ego-TERGM
-#' @references Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
+#' #@references Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
 #' @examples
 #' \dontrun{
 #' # Code from xergm.common and their preparation of the Knecht network

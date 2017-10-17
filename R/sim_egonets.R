@@ -16,7 +16,7 @@
 #' @param seed The seed for simulation
 #' @return A list of simulated ego-networks and the output of the ego_tergm function fit to this.
 #' @keywords simulation networks
-#' @references Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
+#'# @references Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
 #' @examples
 #' \dontrun{
 #' net <- sim_egonets(form = c("edges", "gwesp(0.8,fixed=TRUE)", "gwdegree(decay=0.8,fixed=TRUE)"),

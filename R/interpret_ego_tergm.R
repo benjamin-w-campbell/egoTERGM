@@ -4,7 +4,7 @@
 #' @param ego_tergm_fit The output from a fitted "ego_tergm".
 #' @param custom_var_names A vector of character terms in the same order as the form object fed to ego_tergm of clearer names for these variables.
 #' @keywords summary interpretation
-#' @references Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
+#' #@references Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
 #' @examples
 #' interpret_ego_tergm(ego_tergm_fit = ego_tergm_fit)
 #' interpret_ego_tergm(ego_tergm_fit = ego_tergm_fit,
