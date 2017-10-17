@@ -55,8 +55,22 @@ net <- sim_egonets(form = c("edges", "gwesp(0.8,fixed=TRUE)", "gwdegree(decay=0.
                   tol = 1e-6)
 }
 }
-\references{
-Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
-}
+\keyword{#}
+\keyword{2017.}
+\keyword{@references}
+\keyword{Benjamin}
+\keyword{Campbell,}
+\keyword{Ego-TERGM.}
+\keyword{Inferring}
+\keyword{Latent}
+\keyword{Longitudinal}
+\keyword{Networks}
+\keyword{Paper.}
+\keyword{Roles}
+\keyword{W.}
+\keyword{Working}
+\keyword{in}
 \keyword{networks}
 \keyword{simulation}
+\keyword{the}
+\keyword{using}

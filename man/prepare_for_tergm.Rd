@@ -11,6 +11,7 @@ prepare_for_tergm(ego_tergm_fit = NULL)
 }
 \value{
 A list of length G containing pooled cluster assignments.  First-level elements of this list may be fed to a btergm call.
+#@references Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
 }
 \description{
 This takes the output of an ego-TERGM call and prepares it for use by the xergm btergm function.  Note: This routine assumes temporal independence wihin ego-netwworks and independence acrosss ego-networks.
@@ -74,7 +75,4 @@ role1_btergm <- btergm(net_list[[1]] ~ edges + mutual + triangle + nodeicov('ide
                        R = 500)
 
 }
-}
-\references{
-Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
 }

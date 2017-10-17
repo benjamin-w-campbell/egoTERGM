@@ -100,7 +100,20 @@ ego_tergm_fit <- ego_tergm(net = net,
                           tol = 1e-06)
 }
 }
-\references{
-Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
-}
+\keyword{#@references}
+\keyword{2017.}
+\keyword{Benjamin}
+\keyword{Campbell,}
+\keyword{Ego-TERGM.}
+\keyword{Inferring}
+\keyword{Latent}
+\keyword{Longitudinal}
+\keyword{Networks}
+\keyword{Paper.}
+\keyword{Roles}
+\keyword{W.}
+\keyword{Working}
 \keyword{ego-TERGM}
+\keyword{in}
+\keyword{the}
+\keyword{using}
