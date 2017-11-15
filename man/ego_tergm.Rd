@@ -24,7 +24,7 @@ ego_tergm(net = NULL, form = NULL, core_size = 1, min_size = 5,
 
 \item{directed}{Should the longitudinal network be treated as directed? If so, specify as the default TRUE.}
 
-\item{edge_covariates}{Are edge covariates included in the form term? IF so, specify as TRUE.  No default.}
+\item{edge_covariates}{Are edge covariates included in the form term? IF so, specify as TRUE.  No default.  These should be stored as network attributes.}
 
 \item{seed}{The seed set to replicate analysis for pseudorandom number generator.}
 
