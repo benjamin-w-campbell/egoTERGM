@@ -182,46 +182,49 @@ ego_tergm <- function(net = NULL,
     for(t in 1:length(net)){
       time_slice <- net[[t]]
       red_net <- network::as.network(as.matrix(network::as.sociomatrix(time_slice)[(1:N)[keep_mat[,t]],(1:N)[keep_mat[,t]]]), directed=directed)
-      for(att in network::list.vertex.attributes(time_slice)){
-        network::set.vertex.attribute(red_net,att,network::get.vertex.attribute(time_slice,att)[keep_mat[,t]])
-      }
-      if(edge_covariates == TRUE){
-        for(att_e in setdiff(network::list.network.attributes(time_slice), c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"))){
-          # setting edge attributes harder given how they're stored
-          if(att_e != "na"){
-            # el <- as.matrix(time_slice,matrix.type="edgelist")
-            #el[,1] <- network::get.vertex.attribute(time_slice, 'vertex.names')[el[,1]]
-            #el[,2] <- network::get.vertex.attribute(time_slice, 'vertex.names')[as.numeric(el[,2])]
-            #el <- cbind(el, network::get.edge.attribute(time_slice, att_e))
-            #class_att <- class(network::get.edge.attribute(time_slice, att_e))
-            #el_red <- as.matrix(red_net, matrix.type="edgelist")
-            #el_red[,1] <- network::get.vertex.attribute(red_net, 'vertex.names')[el_red[,1]]
-            #el_red[,2] <- network::get.vertex.attribute(red_net, 'vertex.names')[as.numeric(el_red[,2])]
-            #el_red <- cbind(el_red, NA)
+      if(network.size(red_net) == 0){
+        red_net <- NA
+      } else {
+        for(att in network::list.vertex.attributes(time_slice)){
+          network::set.vertex.attribute(red_net,att,network::get.vertex.attribute(time_slice,att)[keep_mat[,t]])
+        }
+        if(edge_covariates == TRUE){
+          for(att_e in setdiff(network::list.network.attributes(time_slice), c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"))){
+            # setting edge attributes harder given how they're stored
+            if(att_e != "na"){
+              # el <- as.matrix(time_slice,matrix.type="edgelist")
+              #el[,1] <- network::get.vertex.attribute(time_slice, 'vertex.names')[el[,1]]
+              #el[,2] <- network::get.vertex.attribute(time_slice, 'vertex.names')[as.numeric(el[,2])]
+              #el <- cbind(el, network::get.edge.attribute(time_slice, att_e))
+              #class_att <- class(network::get.edge.attribute(time_slice, att_e))
+              #el_red <- as.matrix(red_net, matrix.type="edgelist")
+              #el_red[,1] <- network::get.vertex.attribute(red_net, 'vertex.names')[el_red[,1]]
+              #el_red[,2] <- network::get.vertex.attribute(red_net, 'vertex.names')[as.numeric(el_red[,2])]
+              #el_red <- cbind(el_red, NA)
 
-            adj <- as.matrix(time_slice, matrix.type = "adjacency")
-            net_att <- network::get.network.attribute(time_slice, att_e)
-            colnames(net_att) <- colnames(adj)[1:nrow(net_att)]
-            rownames(net_att) <- rownames(adj)[1:nrow(net_att)]
+              adj <- as.matrix(time_slice, matrix.type = "adjacency")
+              net_att <- network::get.network.attribute(time_slice, att_e)
+              colnames(net_att) <- colnames(adj)[1:nrow(net_att)]
+              rownames(net_att) <- rownames(adj)[1:nrow(net_att)]
 
-            adj_red <- as.matrix(red_net, matrix.type = "adjacency")
-            vertices_red <- stats::na.omit(rownames(adj_red))
-            net_red <- net_att[vertices_red, vertices_red]
+              adj_red <- as.matrix(red_net, matrix.type = "adjacency")
+              vertices_red <- stats::na.omit(rownames(adj_red))
+              net_red <- net_att[vertices_red, vertices_red]
 
-            # check to make sure that el's are same order
-            # if(all(el_red[,1] %in% el[,2])){
-            #  el_red <- cbind(el_red[,2], el_red[,1], NA)
-            #}
+              # check to make sure that el's are same order
+              # if(all(el_red[,1] %in% el[,2])){
+              #  el_red <- cbind(el_red[,2], el_red[,1], NA)
+              #}
 
-            # aad a third column to el_red which contains the edge attribute from el when edges were kept
-            #  m3 <- rbind(el, el_red)
-            # el <- m3[!duplicated(m3[,1:2], fromLast = TRUE), , drop = TRUE]
-            network::set.network.attribute(red_net,att_e,net_red)
+              # aad a third column to el_red which contains the edge attribute from el when edges were kept
+              #  m3 <- rbind(el, el_red)
+              # el <- m3[!duplicated(m3[,1:2], fromLast = TRUE), , drop = TRUE]
+              network::set.network.attribute(red_net,att_e,net_red)
 
+            }
           }
         }
       }
-
       red_net_list[[t]] <- red_net
     }
     reduced_networks <- red_net_list
