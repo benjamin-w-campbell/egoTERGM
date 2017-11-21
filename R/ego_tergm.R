@@ -83,7 +83,7 @@ ego_tergm <- function(net = NULL,
                       steps = 50, tol = 1e-6){
 
   # tested prior to 9/3/17
-
+  orig_nets <- net
   N = max(unlist(lapply(net, function(x) network::network.size(x))))
 
   ########################################################################
@@ -123,13 +123,21 @@ ego_tergm <- function(net = NULL,
 
   if(directed == FALSE){
     YT2 <- lapply(YT, function(x) x+t(x))
+    recode <- function(x){
+      x[x == 2] <- 1
+      x <- x[order(as.integer(colnames(x))),order(as.integer(colnames(x)))]
+      return(x)
+
+    }
+    YT2 <- lapply(YT2, function(x) recode(x))
+
   }
 
   if(directed == TRUE){
     YT2 <- YT
-
   }
 
+  # reorder matrix by name, preserving order
 
   net2 <- lapply(YT2, function(x) network::network(x, directed = directed)) #network object based upon the network matrix y which takes y and transforms it by	causing nodes to "jump backwards across links at the second step"
 
@@ -167,26 +175,49 @@ ego_tergm <- function(net = NULL,
   # only look at egos bigger than MINSIZE.  Here I think the MINSIZE is however many connections they have
   if (min_size>1){
     keep_mat <- matrix(ncol = length(net), nrow = N)
+    colnames(keep_mat) <- paste0("t", 1:time_steps)
+    rownames(keep_mat) <- vertices[order(as.integer(vertices))]
     for(i in 1:length(xt)){
       ego <- xt[[i]]
       keep <- lapply(ego, network::network.size)>=min_size
       keep_mat[i,] <- keep
     }
 
+
+    ### good
+
     # all_net<-net
+
+    # Unname the list
     red_net_list <- list()
     if(length(names(net)) > 0){
       net <- unname(net)
     }
 
+    # Double check to make sure I'm removing those nodes whose ego-networks do not achieve the minimum size
     for(t in 1:length(net)){
       time_slice <- net[[t]]
-      red_net <- network::as.network(as.matrix(network::as.sociomatrix(time_slice)[(1:N)[keep_mat[,t]],(1:N)[keep_mat[,t]]]), directed=directed)
+
+      red_net <- network::as.sociomatrix(time_slice)
+      red_net <- red_net[order(as.integer(colnames(red_net))),order(as.integer(colnames(red_net)))]
+
+      if(is.null(nrow(red_net[(1:N)[keep_mat[,t]],(1:N)[keep_mat[,t]]]))){
+        red_net <- network.initialize(n=0, directed=directed)
+      } else {
+        red_net <- network::as.network(red_net[(1:N)[keep_mat[,t]],(1:N)[keep_mat[,t]]], directed=directed)
+      }
+
       if(network.size(red_net) == 0){
         red_net <- NA
       } else {
         for(att in network::list.vertex.attributes(time_slice)){
-          network::set.vertex.attribute(red_net,att,network::get.vertex.attribute(time_slice,att)[keep_mat[,t]])
+          vals <- network::get.vertex.attribute(time_slice,att)
+          names(vals) <- network::get.vertex.attribute(time_slice, 'vertex.names')
+
+          to_match <- network::get.vertex.attribute(red_net, 'vertex.names')
+          red_vals <- vals[to_match]
+
+          network::set.vertex.attribute(red_net,att,red_vals)
         }
         if(edge_covariates == TRUE){
           for(att_e in setdiff(network::list.network.attributes(time_slice), c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"))){
@@ -203,12 +234,15 @@ ego_tergm <- function(net = NULL,
               #el_red <- cbind(el_red, NA)
 
               adj <- as.matrix(time_slice, matrix.type = "adjacency")
+              adj <- adj[order(as.integer(colnames(adj))),order(as.integer(colnames(adj)))]
+
               net_att <- network::get.network.attribute(time_slice, att_e)
-              colnames(net_att) <- colnames(adj)[1:nrow(net_att)]
-              rownames(net_att) <- rownames(adj)[1:nrow(net_att)]
+
+              colnames(net_att) <- get.vertex.attribute(orig_nets[[t]], 'vertex.names')
+              rownames(net_att) <- get.vertex.attribute(orig_nets[[t]], 'vertex.names')
 
               adj_red <- as.matrix(red_net, matrix.type = "adjacency")
-              vertices_red <- stats::na.omit(rownames(adj_red))
+              vertices_red <- rownames(adj_red)
               net_red <- net_att[vertices_red, vertices_red]
 
               # check to make sure that el's are same order
@@ -239,6 +273,7 @@ ego_tergm <- function(net = NULL,
     }
     N=length(xt)
 
+    # Everything works prior to this
     for(i in 1:length(xt)){
       nets <- xt[[i]]
       for(t in 1:length(nets)){
