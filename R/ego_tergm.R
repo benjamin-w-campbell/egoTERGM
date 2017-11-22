@@ -419,6 +419,7 @@ ego_tergm <- function(net = NULL,
   } else {
     stop("Minimum size must be larger than 1.  Please adjust the min_size argument accordingly.")
   }
+
   x <- xt
   rm(xt)
 
