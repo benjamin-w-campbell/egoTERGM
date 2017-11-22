@@ -127,7 +127,6 @@ ego_tergm <- function(net = NULL,
       x[x == 2] <- 1
       x <- x[order(as.integer(colnames(x))),order(as.integer(colnames(x)))]
       return(x)
-
     }
     YT2 <- lapply(YT2, function(x) recode(x))
 
@@ -135,6 +134,13 @@ ego_tergm <- function(net = NULL,
 
   if(directed == TRUE){
     YT2 <- YT
+    recode <- function(x){
+      x[x == 2] <- 1
+      x <- x[order(as.integer(colnames(x))),order(as.integer(colnames(x)))]
+      return(x)
+    }
+    YT2 <- lapply(YT2, function(x) recode(x))
+
   }
 
   # reorder matrix by name, preserving order
@@ -281,7 +287,7 @@ ego_tergm <- function(net = NULL,
           vertex_ids <- network::get.vertex.attribute(xt[[i]][[t]], 'vertex.names')
           time_indices <- which(keep_mat[i,] == TRUE)
           index <- time_indices[t]
-          indices <- which(vertex_ids %in% network::get.vertex.attribute(orig_nets[[index]], 'vertex.names'))
+          indices <- which(network::get.vertex.attribute(orig_nets[[index]], 'vertex.names') %in% vertex_ids)
           for(att in network::list.vertex.attributes(orig_nets[[index]])){
             network::set.vertex.attribute(xt[[i]][[t]], att, network::get.vertex.attribute(orig_nets[[index]], att)[indices])
           }
@@ -340,7 +346,7 @@ ego_tergm <- function(net = NULL,
           vertex_ids <- network::get.vertex.attribute(nets[[1]], 'vertex.names')
           time_indices <- which(keep_mat[i,] == TRUE)
           index <- time_indices[1]
-          indices <- which(vertex_ids %in% network::get.vertex.attribute(orig_nets[[index]], 'vertex.names')) #
+          indices <- which(network::get.vertex.attribute(orig_nets[[index]], 'vertex.names') %in% vertex_ids) #
           for(att in network::list.vertex.attributes(net[[t]])){
             if(att != "na"){
               network::set.vertex.attribute(nets[[1]], att, network::get.vertex.attribute(orig_nets[[index]], att)[indices])
