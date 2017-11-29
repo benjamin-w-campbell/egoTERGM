@@ -81,7 +81,7 @@ ego_tergm <- function(net = NULL,
                       seed = 12345,
                       R = 10, parallel = "no", ncpus = 1,
                       steps = 50, tol = 1e-6){
-
+  cat("Data formatting started.")
   # tested prior to 9/3/17
   orig_nets <- net
   N = max(unlist(lapply(net, function(x) network::network.size(x))))
@@ -416,7 +416,7 @@ ego_tergm <- function(net = NULL,
     }
     null_networks <- which(is.na(xt))
     dropped <- vertices[null_networks]
-    print(paste(dropped, "removed from x list due to no identifiable networks"))
+    print(paste(dropped, "removed from ego-TERGM analysis due to no identifiable networks"))
     remaining_vertices <- vertices[-c(null_networks)]
 
     xt <- xt[!is.na(xt)]
@@ -529,7 +529,7 @@ ego_tergm <- function(net = NULL,
         }
       }
       lambda<-lambda/apply(lambda,1,sum) # normalise lambda
-      print("Finished kmeans initialisation")
+      cat("Finished kmeans initialisation")
     }
     return(list(theta=theta, group.theta=group.theta, lambda=lambda, roles=roles, fit.list=fit.list))
   }
@@ -543,7 +543,7 @@ ego_tergm <- function(net = NULL,
 
   ergmformula <- paste("~", paste(form,collapse="+"),sep="") # Establish function ergm formula that includes the ego.terms object
   obs.S<-list() #obs.S list that will be useful for the below for loop
-  print("Calculating all network statistics...")
+  cat("Calculating all network statistics...")
   for (n in 1:length(x)) {# for loop started
     ego_lists <- list()
     temp <- x[[n]]
