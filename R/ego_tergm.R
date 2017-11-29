@@ -204,6 +204,7 @@ ego_tergm <- function(net = NULL,
     for(t in 1:length(net)){
       time_slice <- net[[t]]
 
+
       red_net <- network::as.sociomatrix(time_slice)
       red_net <- red_net[order(as.integer(colnames(red_net))),order(as.integer(colnames(red_net)))]
 
