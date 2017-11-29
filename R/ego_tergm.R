@@ -429,6 +429,7 @@ ego_tergm <- function(net = NULL,
 
   x <- xt
   rm(xt)
+  cat("Data formatting complete.")
 
   ########################################################################
   ### Likelihood functions
@@ -529,7 +530,7 @@ ego_tergm <- function(net = NULL,
         }
       }
       lambda<-lambda/apply(lambda,1,sum) # normalise lambda
-      cat("Finished kmeans initialisation")
+      cat("Finished kmeans initialization.")
     }
     return(list(theta=theta, group.theta=group.theta, lambda=lambda, roles=roles, fit.list=fit.list))
   }
@@ -543,7 +544,7 @@ ego_tergm <- function(net = NULL,
 
   ergmformula <- paste("~", paste(form,collapse="+"),sep="") # Establish function ergm formula that includes the ego.terms object
   obs.S<-list() #obs.S list that will be useful for the below for loop
-  cat("Calculating all network statistics...")
+  cat("Calculating all network statistics.")
   for (n in 1:length(x)) {# for loop started
     ego_lists <- list()
     temp <- x[[n]]
@@ -555,6 +556,8 @@ ego_tergm <- function(net = NULL,
     }
     obs.S[[n]] <- ego_lists
   }
+
+  cat("Network statistics calculated.")
 
   ########################################################################
   ### EM Algorithm
@@ -618,6 +621,8 @@ ego_tergm <- function(net = NULL,
 
   LOWESTLL=-1e8
 
+  cat("EM algorithm starting.")
+
   out <- fit.mix.egoergm(form=form,init=init,obs.S,roles) # run the EM algorithm
   lambda<-out$lambda
   group.theta<-out$theta
@@ -627,6 +632,8 @@ ego_tergm <- function(net = NULL,
   roles_out <- data.frame(Id = remaining_vertices,
                           Role = z)
 
+  cat("EM algorithm completed.")
+  cat("Done.")
   return(list(model.fit = "egoTERGM",
               lambda = lambda,
               group.theta = group.theta,
