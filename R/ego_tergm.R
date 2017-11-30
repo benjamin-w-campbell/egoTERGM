@@ -212,10 +212,10 @@ ego_tergm <- function(net = NULL,
     red_net <- network::as.sociomatrix(time_slice)
     red_net <- red_net[order(as.integer(colnames(red_net))),order(as.integer(colnames(red_net)))]
 
-    if(is.null(nrow(red_net[(1:N)[keep_mat[,t]],(1:N)[keep_mat[,t]]])) || nrow(red_net[(1:N)[keep_mat[,t]],(1:N)[keep_mat[,t]]]) == 0){
+    if(is.null(nrow(red_net[keep_mat[,t],keep_mat[,t]])) || nrow(red_net[keep_mat[,t],keep_mat[,t]]) == 0){
       red_net <- network::network.initialize(n=0, directed=directed)
     } else {
-      red_net <- network::as.network(red_net[(1:N)[keep_mat[,t]],(1:N)[keep_mat[,t]]], directed=directed)
+      red_net <- network::as.network(red_net[keep_mat[,t],keep_mat[,t]], directed=directed)
     }
 
     if(network.size(red_net) == 0){
