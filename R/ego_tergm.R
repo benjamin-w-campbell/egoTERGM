@@ -216,12 +216,14 @@ ego_tergm <- function(net = NULL,
       red_net <- network::network.initialize(n=0, directed=directed)
     } else {
       red_net <- network::as.network(red_net[keep_mat[,t],keep_mat[,t]], directed=directed)
+
     }
 
     if(network.size(red_net) == 0){
       red_net <- NA
     } else {
       for(att in network::list.vertex.attributes(time_slice)){
+
         vals <- network::get.vertex.attribute(time_slice,att)
         names(vals) <- network::get.vertex.attribute(time_slice, 'vertex.names')
 
@@ -284,7 +286,6 @@ ego_tergm <- function(net = NULL,
   }
   N=length(xt)
 
-  # Everything works prior to this (5:59)
   for(i in 1:length(xt)){
     nets <- xt[[i]]
     for(t in 1:length(nets)){
@@ -322,9 +323,9 @@ ego_tergm <- function(net = NULL,
               #    el_red <- cbind(el_red[,2], el_red[,1], NA)
               #  }
 
-              if(network::network.size(xt[[i]][[t]]) == 1){
-                el_red <- matrix(nrow = 0, ncol = 3)
-              }
+              #if(network::network.size(xt[[i]][[t]]) == 1){
+              #  el_red <- matrix(nrow = 0, ncol = 3)
+              #}
 
               # m3 <- rbind(el, el_red)
               #el <- m3[!duplicated(m3[,1:2], fromLast = TRUE), , drop = TRUE]
