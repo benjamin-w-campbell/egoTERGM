@@ -178,125 +178,129 @@ ego_tergm <- function(net = NULL,
   }
   xt <- ego_list
 
+
+  if (min_size<=1){
+   stop("Minimum size must be greater than 1.  Please adjust the min_size argument to a value greater than 1.")
+  }
+
   # only look at egos bigger than MINSIZE.  Here I think the MINSIZE is however many connections they have
-  if (min_size>1){
-    keep_mat <- matrix(ncol = length(net), nrow = N)
-    colnames(keep_mat) <- paste0("t", 1:time_steps)
-    rownames(keep_mat) <- vertices[order(as.integer(vertices))]
-    for(i in 1:length(xt)){
-      ego <- xt[[i]]
-      keep <- lapply(ego, network::network.size)>=min_size
-      keep_mat[i,] <- keep
+  keep_mat <- matrix(ncol = length(net), nrow = N)
+  colnames(keep_mat) <- paste0("t", 1:time_steps)
+  rownames(keep_mat) <- vertices[order(as.integer(vertices))]
+  for(i in 1:length(xt)){
+    ego <- xt[[i]]
+    keep <- lapply(ego, network::network.size)>=min_size
+    keep_mat[i,] <- keep
+  }
+
+
+  ### good
+
+  # all_net<-net
+
+  # Unname the list
+  red_net_list <- list()
+  if(length(names(net)) > 0){
+    net <- unname(net)
+  }
+
+  # Double check to make sure I'm removing those nodes whose ego-networks do not achieve the minimum size
+  for(t in 1:length(net)){
+    time_slice <- net[[t]]
+
+
+    red_net <- network::as.sociomatrix(time_slice)
+    red_net <- red_net[order(as.integer(colnames(red_net))),order(as.integer(colnames(red_net)))]
+
+    if(is.null(nrow(red_net[(1:N)[keep_mat[,t]],(1:N)[keep_mat[,t]]])) || nrow(red_net[(1:N)[keep_mat[,t]],(1:N)[keep_mat[,t]]]) == 0){
+      red_net <- network::network.initialize(n=0, directed=directed)
+    } else {
+      red_net <- network::as.network(red_net[(1:N)[keep_mat[,t]],(1:N)[keep_mat[,t]]], directed=directed)
     }
 
+    if(network.size(red_net) == 0){
+      red_net <- NA
+    } else {
+      for(att in network::list.vertex.attributes(time_slice)){
+        vals <- network::get.vertex.attribute(time_slice,att)
+        names(vals) <- network::get.vertex.attribute(time_slice, 'vertex.names')
 
-    ### good
+        to_match <- network::get.vertex.attribute(red_net, 'vertex.names')
+        red_vals <- vals[to_match]
 
-    # all_net<-net
-
-    # Unname the list
-    red_net_list <- list()
-    if(length(names(net)) > 0){
-      net <- unname(net)
-    }
-
-    # Double check to make sure I'm removing those nodes whose ego-networks do not achieve the minimum size
-    for(t in 1:length(net)){
-      time_slice <- net[[t]]
-
-
-      red_net <- network::as.sociomatrix(time_slice)
-      red_net <- red_net[order(as.integer(colnames(red_net))),order(as.integer(colnames(red_net)))]
-
-      if(is.null(nrow(red_net[(1:N)[keep_mat[,t]],(1:N)[keep_mat[,t]]])) || nrow(red_net[(1:N)[keep_mat[,t]],(1:N)[keep_mat[,t]]]) == 0){
-        red_net <- network::network.initialize(n=0, directed=directed)
-      } else {
-        red_net <- network::as.network(red_net[(1:N)[keep_mat[,t]],(1:N)[keep_mat[,t]]], directed=directed)
+        network::set.vertex.attribute(red_net,att,red_vals)
       }
+      if(edge_covariates == TRUE){
+        for(att_e in setdiff(network::list.network.attributes(time_slice), c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"))){
+          # setting edge attributes harder given how they're stored
+          if(att_e != "na"){
+            # el <- as.matrix(time_slice,matrix.type="edgelist")
+            #el[,1] <- network::get.vertex.attribute(time_slice, 'vertex.names')[el[,1]]
+            #el[,2] <- network::get.vertex.attribute(time_slice, 'vertex.names')[as.numeric(el[,2])]
+            #el <- cbind(el, network::get.edge.attribute(time_slice, att_e))
+            #class_att <- class(network::get.edge.attribute(time_slice, att_e))
+            #el_red <- as.matrix(red_net, matrix.type="edgelist")
+            #el_red[,1] <- network::get.vertex.attribute(red_net, 'vertex.names')[el_red[,1]]
+            #el_red[,2] <- network::get.vertex.attribute(red_net, 'vertex.names')[as.numeric(el_red[,2])]
+            #el_red <- cbind(el_red, NA)
 
-      if(network.size(red_net) == 0){
-        red_net <- NA
-      } else {
-        for(att in network::list.vertex.attributes(time_slice)){
-          vals <- network::get.vertex.attribute(time_slice,att)
-          names(vals) <- network::get.vertex.attribute(time_slice, 'vertex.names')
+            adj <- as.matrix(time_slice, matrix.type = "adjacency")
+            adj <- adj[order(as.integer(colnames(adj))),order(as.integer(colnames(adj)))]
 
-          to_match <- network::get.vertex.attribute(red_net, 'vertex.names')
-          red_vals <- vals[to_match]
+            net_att <- network::get.network.attribute(time_slice, att_e)
 
-          network::set.vertex.attribute(red_net,att,red_vals)
+            colnames(net_att) <- get.vertex.attribute(orig_nets[[t]], 'vertex.names')
+            rownames(net_att) <- get.vertex.attribute(orig_nets[[t]], 'vertex.names')
+
+            adj_red <- as.matrix(red_net, matrix.type = "adjacency")
+            vertices_red <- rownames(adj_red)
+            net_red <- net_att[vertices_red, vertices_red]
+
+            # check to make sure that el's are same order
+            # if(all(el_red[,1] %in% el[,2])){
+            #  el_red <- cbind(el_red[,2], el_red[,1], NA)
+            #}
+
+            # aad a third column to el_red which contains the edge attribute from el when edges were kept
+            #  m3 <- rbind(el, el_red)
+            # el <- m3[!duplicated(m3[,1:2], fromLast = TRUE), , drop = TRUE]
+            network::set.network.attribute(red_net,att_e,net_red)
+
+          }
+        }
+      }
+    }
+    red_net_list[[t]] <- red_net
+  }
+  reduced_networks <- red_net_list
+
+  net <- red_net_list
+
+  # reduce xt list by keep mat
+  for(i in 1:nrow(keep_mat)){
+    ego <- xt[[i]]
+    ego <- ego[keep_mat[i,]]
+    xt[[i]] <- ego
+  }
+  N=length(xt)
+
+  # Everything works prior to this (5:59)
+  for(i in 1:length(xt)){
+    nets <- xt[[i]]
+    for(t in 1:length(nets)){
+      if(length(nets) > 1){
+        vertex_ids <- network::get.vertex.attribute(xt[[i]][[t]], 'vertex.names')
+        time_indices <- which(keep_mat[i,] == TRUE)
+        index <- time_indices[t]
+        indices <- which(network::get.vertex.attribute(orig_nets[[index]], 'vertex.names') %in% vertex_ids)
+        for(att in network::list.vertex.attributes(orig_nets[[index]])){
+          network::set.vertex.attribute(xt[[i]][[t]], att, network::get.vertex.attribute(orig_nets[[index]], att)[indices])
         }
         if(edge_covariates == TRUE){
-          for(att_e in setdiff(network::list.network.attributes(time_slice), c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"))){
-            # setting edge attributes harder given how they're stored
+          for(att_e in setdiff(network::list.network.attributes(orig_nets[[index]]), c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"))){
             if(att_e != "na"){
-              # el <- as.matrix(time_slice,matrix.type="edgelist")
-              #el[,1] <- network::get.vertex.attribute(time_slice, 'vertex.names')[el[,1]]
-              #el[,2] <- network::get.vertex.attribute(time_slice, 'vertex.names')[as.numeric(el[,2])]
-              #el <- cbind(el, network::get.edge.attribute(time_slice, att_e))
-              #class_att <- class(network::get.edge.attribute(time_slice, att_e))
-              #el_red <- as.matrix(red_net, matrix.type="edgelist")
-              #el_red[,1] <- network::get.vertex.attribute(red_net, 'vertex.names')[el_red[,1]]
-              #el_red[,2] <- network::get.vertex.attribute(red_net, 'vertex.names')[as.numeric(el_red[,2])]
-              #el_red <- cbind(el_red, NA)
-
-              adj <- as.matrix(time_slice, matrix.type = "adjacency")
-              adj <- adj[order(as.integer(colnames(adj))),order(as.integer(colnames(adj)))]
-
-              net_att <- network::get.network.attribute(time_slice, att_e)
-
-              colnames(net_att) <- get.vertex.attribute(orig_nets[[t]], 'vertex.names')
-              rownames(net_att) <- get.vertex.attribute(orig_nets[[t]], 'vertex.names')
-
-              adj_red <- as.matrix(red_net, matrix.type = "adjacency")
-              vertices_red <- rownames(adj_red)
-              net_red <- net_att[vertices_red, vertices_red]
-
-              # check to make sure that el's are same order
-              # if(all(el_red[,1] %in% el[,2])){
-              #  el_red <- cbind(el_red[,2], el_red[,1], NA)
-              #}
-
-              # aad a third column to el_red which contains the edge attribute from el when edges were kept
-              #  m3 <- rbind(el, el_red)
-              # el <- m3[!duplicated(m3[,1:2], fromLast = TRUE), , drop = TRUE]
-              network::set.network.attribute(red_net,att_e,net_red)
-
-            }
-          }
-        }
-      }
-      red_net_list[[t]] <- red_net
-    }
-    reduced_networks <- red_net_list
-
-    net <- red_net_list
-
-    # reduce xt list by keep mat
-    for(i in 1:nrow(keep_mat)){
-      ego <- xt[[i]]
-      ego <- ego[keep_mat[i,]]
-      xt[[i]] <- ego
-    }
-    N=length(xt)
-
-    # Everything works prior to this (5:59)
-    for(i in 1:length(xt)){
-      nets <- xt[[i]]
-      for(t in 1:length(nets)){
-        if(length(nets) > 1){
-          vertex_ids <- network::get.vertex.attribute(xt[[i]][[t]], 'vertex.names')
-          time_indices <- which(keep_mat[i,] == TRUE)
-          index <- time_indices[t]
-          indices <- which(network::get.vertex.attribute(orig_nets[[index]], 'vertex.names') %in% vertex_ids)
-          for(att in network::list.vertex.attributes(orig_nets[[index]])){
-            network::set.vertex.attribute(xt[[i]][[t]], att, network::get.vertex.attribute(orig_nets[[index]], att)[indices])
-          }
-          if(edge_covariates == TRUE){
-            for(att_e in setdiff(network::list.network.attributes(orig_nets[[index]]), c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"))){
-              if(att_e != "na"){
               #  el <- as.matrix(net[[t]],matrix.type="edgelist")
-               # el[,1] <- network::get.vertex.attribute(net[[t]], 'vertex.names')[el[,1]]
+              # el[,1] <- network::get.vertex.attribute(net[[t]], 'vertex.names')[el[,1]]
               #  el[,2] <- network::get.vertex.attribute(net[[t]], 'vertex.names')[as.numeric(el[,2])]
               #  el <- cbind(el, network::get.edge.attribute(net[[t]], att_e))
               #  att_class <- class(network::get.edge.attribute(net[[t]], att_e))
@@ -305,127 +309,125 @@ ego_tergm <- function(net = NULL,
               #  el_red[,2] <- network::get.vertex.attribute(xt[[i]][[t]], 'vertex.names')[as.numeric(el_red[,2])]
               #  el_red <- cbind(el_red, NA)
 
-                adj <- as.matrix(orig_nets[[index]], matrix.type = "adjacency")
-                net_att <- network::get.network.attribute(orig_nets[[index]], att_e)
-                colnames(net_att) <- colnames(adj)[1:nrow(net_att)]
-                rownames(net_att) <- rownames(adj)[1:nrow(net_att)]
+              adj <- as.matrix(orig_nets[[index]], matrix.type = "adjacency")
+              net_att <- network::get.network.attribute(orig_nets[[index]], att_e)
+              colnames(net_att) <- colnames(adj)[1:nrow(net_att)]
+              rownames(net_att) <- rownames(adj)[1:nrow(net_att)]
 
-                adj_red <- as.matrix(xt[[i]][[t]], matrix.type = "adjacency")
-                vertices_red <- stats::na.omit(rownames(adj_red))
-                net_red <- net_att[vertices_red, vertices_red]
+              adj_red <- as.matrix(xt[[i]][[t]], matrix.type = "adjacency")
+              vertices_red <- stats::na.omit(rownames(adj_red))
+              net_red <- net_att[vertices_red, vertices_red]
 
-               # if(all(el_red[,1] %in% el[,2])){
+              # if(all(el_red[,1] %in% el[,2])){
               #    el_red <- cbind(el_red[,2], el_red[,1], NA)
               #  }
 
-                if(network::network.size(xt[[i]][[t]]) == 1){
-                  el_red <- matrix(nrow = 0, ncol = 3)
-                }
+              if(network::network.size(xt[[i]][[t]]) == 1){
+                el_red <- matrix(nrow = 0, ncol = 3)
+              }
 
-               # m3 <- rbind(el, el_red)
-                #el <- m3[!duplicated(m3[,1:2], fromLast = TRUE), , drop = TRUE]
+              # m3 <- rbind(el, el_red)
+              #el <- m3[!duplicated(m3[,1:2], fromLast = TRUE), , drop = TRUE]
 
-               # if(class(el) == "numeric" & length(el) == 3){
+              # if(class(el) == "numeric" & length(el) == 3){
               #    el <- t(as.matrix(el))
               #  }
 
-               # if(att_class == "numeric"){
+              # if(att_class == "numeric"){
               #    network::set.edge.attribute(xt[[i]][[t]],att_e,as.numeric(el[,3]))
               #  } else {
               #    network::set.edge.attribute(xt[[i]][[t]],att_e,el[,3])
               #  }
-                network::set.network.attribute(xt[[i]][[t]],att_e,net_red)
-
-              }
+              network::set.network.attribute(xt[[i]][[t]],att_e,net_red)
 
             }
 
           }
 
         }
-        if(length(nets) == 1 & t == 1){
-          vertex_ids <- network::get.vertex.attribute(nets[[1]], 'vertex.names')
-          time_indices <- which(keep_mat[i,] == TRUE)
-          index <- time_indices[1]
-          indices <- which(network::get.vertex.attribute(orig_nets[[index]], 'vertex.names') %in% vertex_ids) #
-          for(att in network::list.vertex.attributes(net[[t]])){
-            if(att != "na"){
-              network::set.vertex.attribute(nets[[1]], att, network::get.vertex.attribute(orig_nets[[index]], att)[indices])
-            }
+
+      }
+      if(length(nets) == 1 & t == 1){
+        vertex_ids <- network::get.vertex.attribute(nets[[1]], 'vertex.names')
+        time_indices <- which(keep_mat[i,] == TRUE)
+        index <- time_indices[1]
+        indices <- which(network::get.vertex.attribute(orig_nets[[index]], 'vertex.names') %in% vertex_ids) #
+        for(att in network::list.vertex.attributes(net[[t]])){
+          if(att != "na"){
+            network::set.vertex.attribute(nets[[1]], att, network::get.vertex.attribute(orig_nets[[index]], att)[indices])
           }
-          if(edge_covariates == TRUE){
-            for(att_e in setdiff(network::list.network.attributes(time_slice), c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"))){
-              if(att_e != "na"){
-                #el <- as.matrix(net[[t]],matrix.type="edgelist")
-                #el[,1] <- network::get.vertex.attribute(net[[t]], 'vertex.names')[el[,1]]
-                #el[,2] <- network::get.vertex.attribute(net[[t]], 'vertex.names')[as.numeric(el[,2])]
-                #el <- cbind(el, network::get.edge.attribute(net[[t]], att_e))
-                #
-                #attr_class <- class(network::get.edge.attribute(net[[t]], att_e))
-                #
-                #el_red <- as.matrix(nets[[1]], matrix.type="edgelist")
-                #el_red[,1] <- network::get.vertex.attribute(nets[[1]], 'vertex.names')[el_red[,1]]
-                #el_red[,2] <- network::get.vertex.attribute(nets[[1]], 'vertex.names')[as.numeric(el_red[,2])]
-                #el_red <- cbind(el_red, NA)
+        }
+        if(edge_covariates == TRUE){
+          for(att_e in setdiff(network::list.network.attributes(time_slice), c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"))){
+            if(att_e != "na"){
+              #el <- as.matrix(net[[t]],matrix.type="edgelist")
+              #el[,1] <- network::get.vertex.attribute(net[[t]], 'vertex.names')[el[,1]]
+              #el[,2] <- network::get.vertex.attribute(net[[t]], 'vertex.names')[as.numeric(el[,2])]
+              #el <- cbind(el, network::get.edge.attribute(net[[t]], att_e))
+              #
+              #attr_class <- class(network::get.edge.attribute(net[[t]], att_e))
+              #
+              #el_red <- as.matrix(nets[[1]], matrix.type="edgelist")
+              #el_red[,1] <- network::get.vertex.attribute(nets[[1]], 'vertex.names')[el_red[,1]]
+              #el_red[,2] <- network::get.vertex.attribute(nets[[1]], 'vertex.names')[as.numeric(el_red[,2])]
+              #el_red <- cbind(el_red, NA)
 
 
-                adj <- as.matrix(orig_nets[[index]], matrix.type = "adjacency")
-                net_att <- network::get.network.attribute(orig_nets[[index]], att_e)
-                colnames(net_att) <- colnames(adj)[1:nrow(net_att)]
-                rownames(net_att) <- rownames(adj)[1:nrow(net_att)]
+              adj <- as.matrix(orig_nets[[index]], matrix.type = "adjacency")
+              net_att <- network::get.network.attribute(orig_nets[[index]], att_e)
+              colnames(net_att) <- colnames(adj)[1:nrow(net_att)]
+              rownames(net_att) <- rownames(adj)[1:nrow(net_att)]
 
-                adj_red <- as.matrix(nets[[1]], matrix.type = "adjacency")
-                vertices_red <- stats::na.omit(rownames(adj_red))
-                net_red <- net_att[vertices_red, vertices_red]
+              adj_red <- as.matrix(nets[[1]], matrix.type = "adjacency")
+              vertices_red <- stats::na.omit(rownames(adj_red))
+              net_red <- net_att[vertices_red, vertices_red]
 
-                #if(all(el_red[,1] %in% el[,2])){
-                #  el_red <- cbind(el_red[,2], el_red[,1], NA)
-                #}
-                #
-                #if(network::network.size(xt[[i]][[t]]) == 1){
-                #  el_red <- matrix(nrow = 0, ncol = 3)
-                #}
-                #
-                #m3 <- rbind(el, el_red)
-                #el <- m3[duplicated(m3[,1:2], fromLast = TRUE), , drop = TRUE]
-                #
-                #if(class(el) == "numeric" & length(el) == 3){
-                #  el <- t(as.matrix(el))
-                #}
-                #
-                #if(attr_class == "numeric"){
-                #  network::set.edge.attribute(nets[[1]],att_e,as.numeric(el[,3]))
-                #} else {
-                #network::set.edge.attribute(nets[[1]],att_e,el[,3])
-                #}
-                network::set.network.attribute(nets[[1]],att_e,net_red)
+              #if(all(el_red[,1] %in% el[,2])){
+              #  el_red <- cbind(el_red[,2], el_red[,1], NA)
+              #}
+              #
+              #if(network::network.size(xt[[i]][[t]]) == 1){
+              #  el_red <- matrix(nrow = 0, ncol = 3)
+              #}
+              #
+              #m3 <- rbind(el, el_red)
+              #el <- m3[duplicated(m3[,1:2], fromLast = TRUE), , drop = TRUE]
+              #
+              #if(class(el) == "numeric" & length(el) == 3){
+              #  el <- t(as.matrix(el))
+              #}
+              #
+              #if(attr_class == "numeric"){
+              #  network::set.edge.attribute(nets[[1]],att_e,as.numeric(el[,3]))
+              #} else {
+              #network::set.edge.attribute(nets[[1]],att_e,el[,3])
+              #}
+              network::set.network.attribute(nets[[1]],att_e,net_red)
 
-
-              }
 
             }
 
           }
 
-          xt[[i]] <- nets
         }
-        if(length(nets) == 0){
-          xt[[i]] <- NA
-        }
+
+        xt[[i]] <- nets
+      }
+      if(length(nets) == 0){
+        xt[[i]] <- NA
       }
     }
-    null_networks <- which(is.na(xt))
-    dropped <- vertices[null_networks]
-    print(paste(dropped, "removed from ego-TERGM analysis due to no identifiable networks"))
-    remaining_vertices <- vertices[-c(null_networks)]
-
-    xt <- xt[!is.na(xt)]
-
-
-    rm(keep_mat, ego, keep, time_slice, red_net, i, t, red_net_list, nets, vertex_ids, indices)
-  } else {
-    stop("Minimum size must be larger than 1.  Please adjust the min_size argument accordingly.")
   }
+  null_networks <- which(is.na(xt))
+  dropped <- vertices[null_networks]
+  print(paste(dropped, "removed from ego-TERGM analysis due to no identifiable networks"))
+  remaining_vertices <- vertices[-c(null_networks)]
+
+  xt <- xt[!is.na(xt)]
+
+
+  rm(keep_mat, ego, keep, time_slice, red_net, i, t, red_net_list, nets, vertex_ids, indices)
+
 
   x <- xt
   rm(xt)
