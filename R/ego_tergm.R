@@ -82,7 +82,8 @@ ego_tergm <- function(net = NULL,
                       seed = 12345,
                       R = 10, parallel = "no", ncpus = 1,
                       steps = 50, tol = 1e-6){
-  cat("Start Time:", format(Sys.time(), "%a %b %d %X %Y"))
+  cat("Start Time:", format(Sys.time(), "%a %b %d %X %Y"), "\n")
+
   cat("Data formatting started.")
   # tested prior to 9/3/17
   orig_nets <- net
@@ -433,7 +434,7 @@ ego_tergm <- function(net = NULL,
   xt <- xt[!is.na(xt)]
 
 
-  rm(keep_mat, ego, keep, time_slice, red_net, i, t, red_net_list, nets, vertex_ids, indices)
+  rm(ego, keep, time_slice, red_net, i, t, red_net_list, nets, vertex_ids, indices)
 
 
   x <- xt
@@ -515,7 +516,7 @@ ego_tergm <- function(net = NULL,
     }
     l$num.vertices <- max(sapply(l$networks, function(x) network::get.network.attribute(network::network(x),
                                                                                         "n")))
-    if (is.network(l$networks[[1]])) {
+    if (network::is.network(l$networks[[1]])) {
       l$directed <- network::is.directed(l$networks[[1]])
       l$bipartite <- network::is.bipartite(l$networks[[1]])
     }
@@ -796,6 +797,56 @@ ego_tergm <- function(net = NULL,
         else {
           onlytime <- FALSE
           covariate <- get(x)
+        }
+
+        timecov <- function(covariate, minimum = 1, maximum = length(covariate),
+                             transform = function(t) 1 + (0 * t) + (0 * t^2), onlytime = FALSE)
+        {
+          if (class(covariate) != "list") {
+            stop("'covariate' must be a list of matrices or network objects.")
+          }
+          for (i in 1:length(covariate)) {
+            if (is.network(covariate[[i]])) {
+              covariate[[i]] <- as.matrix(covariate[[i]])
+            }
+            else if (!is.matrix(covariate[[i]])) {
+              stop("'covariate' must be a list of matrices or network objects.")
+            }
+          }
+          if (is.null(minimum) || is.null(maximum) || !is.numeric(minimum) ||
+              !is.numeric(maximum) || length(minimum) > 1 || length(maximum) >
+              1) {
+            stop("'minimum' and 'maximum' must be single numeric values.")
+          }
+          if (is.null(transform)) {
+            transform <- function(t) 1 + (0 * t) + (0 * t^2)
+          }
+          else if (!is.function(transform)) {
+            stop("'transform' must be a function.")
+          }
+          l <- 1:length(covariate)
+          values <- transform(l)
+          if (is.null(values) || any(is.null(values)) || any(!is.finite(values)) ||
+              any(is.na(values)) || any(!is.numeric(values))) {
+            stop("The 'transform' function produces non-numeric values.")
+          }
+          values <- values * (l >= minimum) * (l <= maximum)
+          timecov <- list()
+          for (i in 1:length(l)) {
+            if (onlytime == FALSE) {
+              timecov[[i]] <- covariate[[i]] * matrix(values[i],
+                                                      nrow = nrow(covariate[[i]]), ncol = ncol(covariate[[i]]))
+            }
+            else {
+              timecov[[i]] <- matrix(values[i], nrow = nrow(covariate[[i]]),
+                                     ncol = ncol(covariate[[i]]))
+            }
+          }
+          for (i in 1:length(timecov)) {
+            rownames(timecov[[i]]) <- rownames(covariate[[i]])
+            colnames(timecov[[i]]) <- colnames(covariate[[i]])
+          }
+          return(timecov)
         }
         tc <- timecov(covariate = covariate, minimum = minimum,
                       maximum = maximum, transform = transform, onlytime = onlytime)
