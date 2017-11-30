@@ -420,7 +420,11 @@ ego_tergm <- function(net = NULL,
   }
   null_networks <- which(is.na(xt))
   dropped <- vertices[null_networks]
-  print(paste(dropped, "removed from ego-TERGM analysis due to no identifiable networks"))
+  if(length(dropped) > 0){
+    cat("Longitudinally observed ego-networks removed because no time slices achieve the minimum size necessary to be included and to allow for an identifiable model.  If necessary, adjust min_size parameter.")
+    print(paste(dropped, "removed from ego-TERGM analysis due to no identifiable networks"))
+  }
+
   remaining_vertices <- vertices[-c(null_networks)]
 
   xt <- xt[!is.na(xt)]
