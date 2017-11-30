@@ -602,7 +602,7 @@ ego_tergm <- function(net = NULL,
         return(coef(speedglm::speedglm.wfit(y = Yi[indic], X = xsparsei[indic,], weights = Wi[indic], offset = Oi[indic], family = binomial(link = logit),
                                             sparse = TRUE, start = startvali)))
       }, error = function(e) {
-        return(coef(glm.fit(y = Yi[indic], x = as.matrix(x)[indic, ], weights = Wi[indic], offset = Oi[indic], family = binomial(link = logit))))
+        return(coef(stats::glm.fit(y = Yi[indic], x = as.matrix(x)[indic, ], weights = Wi[indic], offset = Oi[indic], family = binomial(link = logit))))
         #  }, warning = function(w) {
         #   warning(w)
         #  }, finally = {
