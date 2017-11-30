@@ -17,8 +17,8 @@
 #' @param tol The difference in parameter estimates between EM iterations to determine if the algorithm has converged.  Defaults to 1e-6.
 #' @return A list of model results, including lambda (the probability of assignments), group.theta (the roles by terms cluster centroids),
 #'         EE.BIC (the Salter-Townshend and Murphy BIC cross-sectional BIC), TS.BIC (the Campbell BIC penalizing for time-steps),
-#'        role_assignments (a data frame of the most likely assignments), reduced_networks (A list of the networks with excluded egos), and
-#'        ego_nets (a list of ego-networks).
+#'        role_assignments (a data frame of the most likely assignments), reduced_networks (A list of the networks with excluded egos),
+#'        ego_nets (a list of ego-networks), and ego_nets_used (N x T matrix of logicals here TRUE refers to ego-networks kept).
 #' @keywords ego-TERGM
 #' #@references Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
 #' @examples
@@ -644,6 +644,7 @@ ego_tergm <- function(net = NULL,
               role_assignments = roles_out,
               reduced_networks = reduced_networks,
               form = form,
-              ego_nets = x))
+              ego_nets = x,
+              ego_nets_used = keep_mat))
 
 }
