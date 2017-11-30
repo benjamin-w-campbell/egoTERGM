@@ -81,6 +81,7 @@ ego_tergm <- function(net = NULL,
                       seed = 12345,
                       R = 10, parallel = "no", ncpus = 1,
                       steps = 50, tol = 1e-6){
+  cat("Start Time:", format(Sys.time(), "%a %b %d %X %Y"))
   cat("Data formatting started.")
   # tested prior to 9/3/17
   orig_nets <- net
@@ -794,6 +795,7 @@ ego_tergm <- function(net = NULL,
 
   cat("EM algorithm completed.")
   cat("Done.")
+  cat("Completed Time:", format(Sys.time(), "%a %b %d %X %Y"))
   return(list(model.fit = "egoTERGM",
               lambda = lambda,
               group.theta = group.theta,
