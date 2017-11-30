@@ -481,6 +481,159 @@ ego_tergm <- function(net = NULL,
     -mstepfunction(tmp.theta,S,N,lambda,TAU,old.theta,M,form,ll0)
   }
 
+  # Variation on Leifeld's btergm function to overcome errors from separation.
+  btergm_local <- function(formula, R = 500, offset = FALSE, returndata = FALSE,
+                            parallel = c("no", "multicore", "snow"), ncpus = 1, cl = NULL,
+                            verbose = TRUE, ...){
+    l <- btergm:::tergmprepare(formula = formula, offset = offset, verbose = verbose)
+    for (i in 1:length(l$covnames)) {
+      assign(l$covnames[i], l[[l$covnames[i]]])
+    }
+    assign("offsmat", l$offsmat)
+    form <- as.formula(l$form)
+    if (l$time.steps == 1) {
+      warning(paste("The confidence intervals and standard errors are",
+                    "meaningless because only one time step was provided."))
+    }
+    if (verbose == TRUE && returndata == FALSE) {
+      if (parallel[1] == "no") {
+        parallel.msg <- "on a single computing core"
+      }
+      else if (parallel[1] == "multicore") {
+        parallel.msg <- paste("using multicore forking on",
+                              ncpus, "cores")
+      }
+      else if (parallel[1] == "snow") {
+        parallel.msg <- paste("using parallel processing on",
+                              ncpus, "cores")
+      }
+      if (offset == TRUE) {
+        offset.msg <- "with offset matrix and "
+      }
+      else {
+        offset.msg <- "with "
+      }
+      message("\nStarting pseudolikelihood estimation ", offset.msg,
+              R, " bootstrapping replications ", parallel.msg,
+              "...")
+    }
+    else if(verbose == TRUE && returndata == TRUE){
+      message("\nReturning data frame with change statistics.")
+    }
+    if(offset == TRUE){
+      Y <- NULL
+      X <- NULL
+      W <- NULL
+      O <- NULL
+      for (i in 1:length(l$networks)) {
+        nw <- ergm::ergm.getnetwork(form)
+        model <- ergm::ergm.getmodel(form, nw, initialfit = TRUE)
+        Clist <- ergm::ergm.Cprepare(nw, model)
+        Clist.miss <- ergm::ergm.design(nw, model, verbose = FALSE)
+        pl <- ergm::ergm.pl(Clist, Clist.miss, model, theta.offset = c(rep(FALSE,
+                                                                           length(l$rhs.terms) - 1), TRUE), verbose = FALSE,
+                            control = ergm::control.ergm(init = c(rep(NA,
+                                                                      length(l$rhs.terms) - 1), 1)))
+        Y <- c(Y, pl$zy[pl$foffset == 0])
+        X <- rbind(X, cbind(data.frame(pl$xmat[pl$foffset ==
+                                                 0, ], check.names = FALSE), i))
+        W <- c(W, pl$wend[pl$foffset == 0])
+        O <- c(O, pl$foffset[pl$foffset == 0])
+      }
+      term.names <- colnames(X)[-length(colnames(X))]
+      term.names <- c(term.names, "time")
+      colnames(X) <- term.names
+    } else {
+      Y <- NULL
+      X <- NULL
+      W <- NULL
+      O <- NULL
+      for (i in 1:length(l$networks)) {
+        mpli <- ergm::ergmMPLE(form)
+        Y <- c(Y, mpli$response)
+        if (i > 1 && ncol(X) != ncol(mpli$predictor) + 1) {
+          cn.x <- colnames(X)[-ncol(X)]
+          cn.i <- colnames(mpli$predictor)
+          names.x <- cn.x[which(!cn.x %in% cn.i)]
+          names.i <- cn.i[which(!cn.i %in% cn.x)]
+          if (length(names.x) > 0) {
+            for (nm in 1:length(names.x)) {
+              mpli$predictor <- cbind(mpli$predictor, rep(0,
+                                                          nrow(mpli$predictor)))
+              colnames(mpli$predictor)[ncol(mpli$predictor)] <- names.x[nm]
+            }
+          }
+          if (length(names.i) > 0) {
+            for (nm in 1:length(names.i)) {
+              X <- cbind(X[, 1:(ncol(X) - 1)], rep(0, nrow(X)),
+                         X[, ncol(X)])
+              colnames(X)[ncol(X) - 1] <- names.i[nm]
+            }
+          }
+        }
+        X <- rbind(X, cbind(mpli$predictor, i))
+        W <- c(W, mpli$weights)
+      }
+      term.names <- colnames(X)[-length(colnames(X))]
+      term.names <- c(term.names, "time")
+      X <- data.frame(X)
+      colnames(X) <- term.names
+    }
+    unique.time.steps <- unique(X$time)
+    x <- X[, -ncol(X)]
+    x <- as.data.frame(x)
+    if (returndata == TRUE) {
+      return(cbind(Y, x))
+    }
+    xsparse <- Matrix::Matrix(as.matrix(x), sparse = TRUE)
+    if (ncol(xsparse) == 1) {
+      stop("At least two model terms must be provided to estimate a TERGM.")
+    }
+    est <- speedglm::speedglm.wfit(y = Y, X = xsparse, weights = W, offset = O,
+                                   family = binomial(link = logit), sparse = TRUE)
+    startval <- coef(est)
+    nobs <- est$n
+    estimate <- function(unique.time.steps, bsi, Yi = Y, xsparsei = xsparse,
+                         Wi = W, Oi = O, timei = X$time, startvali = startval) {
+      indic <- unlist(lapply(bsi, function(x) which(timei ==
+                                                      x)))
+      tryCatch(expr = {
+        return(coef(speedglm::speedglm.wfit(y = Yi[indic], X = xsparsei[indic,], weights = Wi[indic], offset = Oi[indic], family = binomial(link = logit),
+                                            sparse = TRUE, start = startvali)))
+      }, error = function(e) {
+        return(coef(glm.fit(y = Yi[indic], x = as.matrix(x)[indic, ], weights = Wi[indic], offset = Oi[indic], family = binomial(link = logit))))
+        #  }, warning = function(w) {
+        #   warning(w)
+        #  }, finally = {
+        #   coef(glm.fit(y = Yi[indic], x = as.matrix(x)[indic, ], weights = Wi[indic], offset = Oi[indic], family = binomial(link = logit)))
+      })
+    }
+    coefs <- boot::boot(unique.time.steps, estimate, R = R, Yi = Y,
+                        xsparsei = xsparse, Wi = W, Oi = O, timei = X$time, startvali = startval,
+                        parallel = parallel, ncpus = ncpus, cl = cl)
+    rm(X)
+    if (ncol(coefs$t) == 1 && length(term.names) > 1 && coefs$t[1, 1] == "glm.fit: algorithm did not converge") {
+      stop(paste("Algorithm did not converge. There might be a collinearity ",
+                 "between predictors and/or dependent networks at one or more time",
+                 "steps."))
+    }
+    colnames(coefs$t) <- term.names[1:(length(term.names) - 1)]
+    names(startval) <- colnames(coefs$t)
+    data <- list()
+    for (i in 1:length(l$covnames)) {
+      data[[l$covnames[i]]] <- l[[l$covnames[i]]]
+    }
+    data$offsmat <- l$offsmat
+    btergm.object <- btergm:::createBtergm(startval, coefs, R, nobs, l$time.steps,
+                                           formula, l$form, Y, x, W, l$auto.adjust, offset, l$directed,
+                                           l$bipartite, nvertices = l$nvertices, data)
+    if (verbose == TRUE) {
+      message("Done.")
+    }
+    return(btergm.object)
+  }
+
+
 
   ########################################################################
   ### Initialization functions
@@ -508,7 +661,7 @@ ego_tergm <- function(net = NULL,
         # for cross sectional ERGM, ergmMPLE would be sufficient, here we need BTERGM
         #theta[i,]<-ergmMPLE(form,output="fit")$coef
 
-        fit <- btergm::btergm(form, R=R, parallel=parallel, ncpus=ncpus, verbose = FALSE)
+        fit <- btergm_local(form, R=R, parallel=parallel, ncpus=ncpus, verbose = FALSE)
         theta[i,] <- btergm::coef(fit)
         fit.list[[i]] <- fit
       }
