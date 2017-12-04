@@ -84,7 +84,7 @@ ego_tergm <- function(net = NULL,
                       steps = 50, tol = 1e-6){
   cat("Start Time:", format(Sys.time(), "%a %b %d %X %Y"), "\n")
 
-  cat("Data formatting started.")
+  cat("Data formatting started.", "\n")
   # tested prior to 9/3/17
   orig_nets <- net
   N = max(unlist(lapply(net, function(x) network::network.size(x))))
@@ -425,7 +425,7 @@ ego_tergm <- function(net = NULL,
   null_networks <- which(is.na(xt))
   dropped <- vertices[null_networks]
   if(length(dropped) > 0){
-    cat("Longitudinally observed ego-networks removed because no time periods achieve the minimum size necessary to be included and to allow for an identifiable model.  If necessary, adjust min_size parameter.")
+    cat("Longitudinally observed ego-networks removed because no time periods achieve the minimum size necessary to be included and to allow for an identifiable model.  If necessary, adjust min_size parameter.", "\n")
     print(paste(dropped, "removed from ego-TERGM analysis due to no identifiable networks"))
   }
 
@@ -439,7 +439,7 @@ ego_tergm <- function(net = NULL,
 
   x <- xt
   rm(xt)
-  cat("Data formatting complete.")
+  cat("Data formatting complete.", "\n")
 
   ########################################################################
   ### Likelihood functions
@@ -1493,7 +1493,7 @@ ego_tergm <- function(net = NULL,
         }
       }
       lambda<-lambda/apply(lambda,1,sum) # normalise lambda
-      cat("Finished kmeans initialization.")
+      cat("Finished kmeans initialization.", "\n")
     }
     return(list(theta=theta, group.theta=group.theta, lambda=lambda, roles=roles, fit.list=fit.list))
   }
@@ -1507,7 +1507,7 @@ ego_tergm <- function(net = NULL,
 
   ergmformula <- paste("~", paste(form,collapse="+"),sep="") # Establish function ergm formula that includes the ego.terms object
   obs.S<-list() #obs.S list that will be useful for the below for loop
-  cat("Calculating all network statistics.")
+  cat("Calculating all network statistics.", "\n")
   for (n in 1:length(x)) {# for loop started
     ego_lists <- list()
     temp <- x[[n]]
@@ -1520,7 +1520,7 @@ ego_tergm <- function(net = NULL,
     obs.S[[n]] <- ego_lists
   }
 
-  cat("Network statistics calculated.")
+  cat("Network statistics calculated.", "\n")
 
   ########################################################################
   ### EM Algorithm
@@ -1584,7 +1584,7 @@ ego_tergm <- function(net = NULL,
 
   LOWESTLL=-1e8
 
-  cat("EM algorithm starting.")
+  cat("EM algorithm starting.", "\n")
 
   out <- fit.mix.egoergm(form=form,init=init,obs.S,roles) # run the EM algorithm
   lambda<-out$lambda
@@ -1595,9 +1595,9 @@ ego_tergm <- function(net = NULL,
   roles_out <- data.frame(Id = remaining_vertices,
                           Role = z)
 
-  cat("EM algorithm completed.")
-  cat("Done.")
-  cat("Completed Time:", format(Sys.time(), "%a %b %d %X %Y"))
+  cat("EM algorithm completed.", "\n")
+  cat("Done.", "\n")
+  cat("Completed Time:", format(Sys.time(), "%a %b %d %X %Y"), "\n")
   return(list(model.fit = "egoTERGM",
               lambda = lambda,
               group.theta = group.theta,
