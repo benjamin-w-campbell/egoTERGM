@@ -18,15 +18,24 @@
 plot_ego_tergm <- function(ego_tergm_fit = NULL, plot_indices = NULL, node.size = 6, edge.size = 1, edge.color = "grey"){
 
   plot_function <- function(nw = NULL){
-    p <- GGally::ggnet2(nw, color = "role", label = TRUE, node.size = node.size, edge.size = edge.size, edge.color = edge.color)
+    if(is.network(nw)){
+      p <- GGally::ggnet2(nw, color = "role", label = TRUE, node.size = node.size, edge.size = edge.size, edge.color = edge.color)
+    } else {
+      p <- NA
+    }
     return(p)
   }
 
   append_roles <- function(nw = NULL){
-    vertices <- data.frame(Id = as.character(get.vertex.attribute(nw[[1]], "vertex.names")))
-    role_df <- merge(vertices, ego_tergm_fit$role_assignments, by = "Id", all.x = TRUE, all.y = FALSE)
-    role_df <- role_df[order(match(role_df[,1],vertices[,1])),]
-    net <- set.vertex.attribute(x = nw[[1]], attrname = "role", value = role_df$Role)
+    nw <- nw[[1]]
+    if(is.network(nw)){
+      vertices <- data.frame(Id = as.character(get.vertex.attribute(nw, "vertex.names")))
+      role_df <- merge(vertices, ego_tergm_fit$role_assignments, by = "Id", all.x = TRUE, all.y = FALSE)
+      role_df <- role_df[order(match(role_df[,1],vertices[,1])),]
+      net <- set.vertex.attribute(x = nw, attrname = "role", value = role_df$Role)
+    } else {
+      net <- NA
+    }
     return(net)
   }
 
@@ -44,5 +53,5 @@ plot_ego_tergm <- function(ego_tergm_fit = NULL, plot_indices = NULL, node.size 
   # create plot_list
   plot_list <- lapply(net_list, function(x) plot_function(x))
 
-  return(plot_list)
+   return(plot_list)
 }
