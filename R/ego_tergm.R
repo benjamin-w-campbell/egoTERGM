@@ -356,7 +356,7 @@ ego_tergm <- function(net = NULL,
         time_indices <- which(keep_mat[i,] == TRUE)
         index <- time_indices[1]
         indices <- which(network::get.vertex.attribute(orig_nets[[index]], 'vertex.names') %in% vertex_ids) #
-        for(att in network::list.vertex.attributes(net[[t]])){
+        for(att in network::list.vertex.attributes(orig_nets[[index]])){
           if(att != "na"){
             network::set.vertex.attribute(nets[[1]], att, network::get.vertex.attribute(orig_nets[[index]], att)[indices])
           }
