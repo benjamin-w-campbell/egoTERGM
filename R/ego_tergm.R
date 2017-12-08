@@ -111,11 +111,14 @@ ego_tergm <- function(net = NULL,
     }
 
     net <- lapply(net, function(x) add_setdiff(x))
+    
+    vertices <- vertices[order(as.integer(vertices))]
 
 
     N = max(unlist(lapply(net, function(x) network::network.size(x))))
   } else {
     vertices <- unique(unlist(lapply(net, function(x) network::get.vertex.attribute(x, 'vertex.names'))))
+    vertices <- vertices[order(as.integer(vertices))]
   }
 
 
