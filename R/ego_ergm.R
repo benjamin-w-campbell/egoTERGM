@@ -82,6 +82,7 @@ ego_ergm <- function(net = NULL,
   ########################################################################
 
   vertices <- network::get.vertex.attribute(net, 'vertex.names')
+  vertices <- vertices[order(as.integer(vertices))]
 
   Y <- network::as.matrix.network(net)
 
