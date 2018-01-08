@@ -10,7 +10,7 @@ ego_tergm(net = NULL, form = NULL, core_size = 1, min_size = 5,
   tol = 1e-06)
 }
 \arguments{
-\item{net}{The longitudinally observed network that an ego-TERGM will be fit on.  Must be presented as a list of networks.  Any vertex attributes should be attached to networks.}
+\item{net}{The longitudinally observed network that an ego-TERGM will be fit on.  Must be presented as a list of networks.  Any vertex attributes should be attached to networks.  Currently the function does not support comparisons of whole networks.}
 
 \item{form}{The formula comprised of ERGM or TERGM terms used to distuinguish between clusters assignments.  Specified as a vector of comma seperated terms. No default.}
 
@@ -45,7 +45,7 @@ A list of model results, including lambda (the probability of assignments), grou
        ego_nets (a list of ego-networks), and ego_nets_used (N x T matrix of logicals here TRUE refers to ego-networks kept).
 }
 \description{
-This function estimates an ego-TERGM.
+This function estimates an ego-TERGM on a longitudinally observed network.  Currently the function does not support comparisons of whole networks.
 }
 \examples{
 \dontrun{

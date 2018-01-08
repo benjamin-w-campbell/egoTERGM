@@ -9,7 +9,7 @@ ego_ergm(net = NULL, form = NULL, core_size = 1, min_size = 5,
   steps = 50, tol = 1e-06)
 }
 \arguments{
-\item{net}{The cross-sectional network that an ego-ERGM will be fit on.  Must be presented as a network object.  Any vertex attributes should be attached to networks.}
+\item{net}{The cross-sectional network that an ego-ERGM will be fit on.  Must be presented as a network object.  Any vertex attributes should be attached to networks.  Currently the function does not support comparisons of whole networks.}
 
 \item{form}{The formula comprised of ERGM or TERGM terms used to distuinguish between clusters assignments.  Specified as a vector of comma seperated terms. No default.}
 
