@@ -1,7 +1,7 @@
 #' Estimation of ego-Temporal Exponential Random Graph Model (ego-TERGM) using Expectation Maximization (EM).
 #'
-#' This function estimates an ego-TERGM.
-#' @param net The longitudinally observed network that an ego-TERGM will be fit on.  Must be presented as a list of networks.  Any vertex attributes should be attached to networks.
+#' This function estimates an ego-TERGM on a longitudinally observed network.  Currently the function does not support comparisons of whole networks.
+#' @param net The longitudinally observed network that an ego-TERGM will be fit on.  Must be presented as a list of networks.  Any vertex attributes should be attached to networks.  Currently the function does not support comparisons of whole networks.
 #' @param core_size The order of alters to include. The defaul value of one implies only looking at an ego's alters and the connections among them.
 #' @param min_size  The minimum number of nodes an ego-network must achieve to be included.  Defaults to five.
 #' @param roles The number of roles that should be fit.  Defaults to 3.
@@ -111,7 +111,7 @@ ego_tergm <- function(net = NULL,
     }
 
     net <- lapply(net, function(x) add_setdiff(x))
-    
+
     vertices <- vertices[order(as.integer(vertices))]
 
 

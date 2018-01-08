@@ -1,7 +1,7 @@
 #' Estimation of ego-Exponential Random Graph Model (ego-ERGM) using Expectation Maximization (EM) as per Salter-Townshend and Murphy (2015).
 #'
 #' This function estimates an ego-ERGM.  Code taken from Salter-Townshend and Murphy (2015)'s replication archive.
-#' @param net The cross-sectional network that an ego-ERGM will be fit on.  Must be presented as a network object.  Any vertex attributes should be attached to networks.
+#' @param net The cross-sectional network that an ego-ERGM will be fit on.  Must be presented as a network object.  Any vertex attributes should be attached to networks.  Currently the function does not support comparisons of whole networks.
 #' @param core_size The order of alters to include. The defaul value of one implies only looking at an ego's alters and the connections among them.
 #' @param min_size  The minimum number of nodes an ego-network must achieve to be included.  Defaults to five.
 #' @param roles The number of roles that should be fit.  Defaults to 3.
