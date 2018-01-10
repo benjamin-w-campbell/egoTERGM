@@ -7,7 +7,7 @@
 #' @param N_per_role An integer for the number of different longitudinally observed ego-networks that should be simulated per role in roles.
 #' @param t_steps An integer for the number of time steps that each ego-network should be observed across.
 #' @param egonet_size An integer for the size of each ego-network simulated.
-#' #' @param seed The seed set to replicate analysis for pseudorandom number generator.
+#' @param seed The seed set to replicate analysis for pseudorandom number generator.
 #' @param R The number of bootstrap replications that should be used for the estimation of a bootstrapped MPLE estimated TERGM for model initialization.  Defaults to 10.
 #' @param parallel How the BTERGM should be computed, either with parallel processing ("multicore", "snow") or no parallel processing ("no").  Defaults to no.
 #' @param ncpus The number of CPUs that should should be used for estimation, defaults to 1.
