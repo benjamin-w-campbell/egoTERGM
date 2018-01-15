@@ -21,7 +21,7 @@ interpret_ego_tergm(ego_tergm_fit = ego_tergm_fit,
                                         "In-Degree", "Out-Degree", "Sex Homophily"))
 }
 \keyword{#@references}
-\keyword{2017.}
+\keyword{2018.}
 \keyword{Benjamin}
 \keyword{Campbell,}
 \keyword{Ego-TERGM.}

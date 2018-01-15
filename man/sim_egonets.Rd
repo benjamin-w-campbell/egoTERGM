@@ -19,8 +19,7 @@ sim_egonets(form = NULL, params = NULL, roles = NULL, N_per_role = NULL,
 
 \item{t_steps}{An integer for the number of time steps that each ego-network should be observed across.}
 
-\item{egonet_size}{An integer for the size of each ego-network simulated.
-#' @param seed The seed set to replicate analysis for pseudorandom number generator.}
+\item{egonet_size}{An integer for the size of each ego-network simulated.}
 
 \item{R}{The number of bootstrap replications that should be used for the estimation of a bootstrapped MPLE estimated TERGM for model initialization.  Defaults to 10.}
 
@@ -32,7 +31,7 @@ sim_egonets(form = NULL, params = NULL, roles = NULL, N_per_role = NULL,
 
 \item{tol}{The difference in parameter estimates between EM iterations to determine if the algorithm has converged.  Defaults to 1e-6.}
 
-\item{seed}{The seed for simulation}
+\item{seed}{The seed set to replicate analysis for pseudorandom number generator.}
 }
 \value{
 A list of simulated ego-networks and the output of the ego_tergm function fit to this.

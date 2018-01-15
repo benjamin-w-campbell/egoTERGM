@@ -13,7 +13,6 @@
 #' @param ncpus The number of CPUs that should should be used for estimation, defaults to 1.
 #' @param steps The number of default EM steps that should be taken, defaults to 50.
 #' @param tol The difference in parameter estimates between EM iterations to determine if the algorithm has converged.  Defaults to 1e-6.
-#' @param seed The seed for simulation
 #' @return A list of simulated ego-networks and the output of the ego_tergm function fit to this.
 #' @keywords simulation networks
 #'# @references Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.

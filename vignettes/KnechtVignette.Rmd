@@ -80,6 +80,7 @@ The `ego_tergm` function requires a few arguments:
 *`tol`: The acceptance level to assess the convergence of the EM algorithm.
 
 ```{r, eval = FALSE}
+library(egoTERGM)
 ego_tergm_fit <- ego_tergm(net = net,
                            form = c("edges", "mutual", "triangle", "nodeicov('idegsqrt')", "nodeocov('odegsqrt')",  "nodematch('sex')"),
                            core_size = 1,
