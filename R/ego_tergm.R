@@ -20,8 +20,8 @@
 #'        role_assignments (a data frame of the most likely assignments), reduced_networks (A list of the networks with excluded egos),
 #'        ego_nets (a list of ego-networks), and ego_nets_used (N x T matrix of logicals here TRUE refers to ego-networks kept).
 #' @keywords ego-TERGM
-#' #@references Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
-#' #@references  Leifeld, Philip, Skyler J. Cranmer and Bruce A. Desmarais (2017). btergm. Temporal Exponential Random Graph Models by Bootstrapped Pseudolikelihood. R package version 1.9.0.
+#' @references Campbell, Benjamin W. 2018. Inferring Latent Roles in Longitudinal Networks. Forthcoming in Political Analysis.
+#' @references  Leifeld, Philip, Skyler J. Cranmer and Bruce A. Desmarais (2017). btergm. Temporal Exponential Random Graph Models by Bootstrapped Pseudolikelihood. R package version 1.9.0.
 #' @examples
 #' \dontrun{
 #' # Code from xergm.common and their preparation of the Knecht network

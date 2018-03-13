@@ -20,21 +20,8 @@ interpret_ego_tergm(ego_tergm_fit = ego_tergm_fit,
                     custom_var_names = c("Edges", "Mutual", "Triangle",
                                         "In-Degree", "Out-Degree", "Sex Homophily"))
 }
-\keyword{#@references}
-\keyword{2018.}
-\keyword{Benjamin}
-\keyword{Campbell,}
-\keyword{Ego-TERGM.}
-\keyword{Inferring}
-\keyword{Latent}
-\keyword{Longitudinal}
-\keyword{Networks}
-\keyword{Paper.}
-\keyword{Roles}
-\keyword{W.}
-\keyword{Working}
-\keyword{in}
+\references{
+Campbell, Benjamin W. 2018. Inferring Latent Roles in Longitudinal Networks. Forthcoming in Political Analysis.
+}
 \keyword{interpretation}
 \keyword{summary}
-\keyword{the}
-\keyword{using}

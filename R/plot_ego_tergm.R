@@ -8,7 +8,7 @@
 #' @param edge.color The color of edges fed to ggnet2.
 #' @keywords summary interpretation plot assignments
 #' @return A list of network plots with nodes colored by role assignment.
-#' #@references Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
+#' @references Campbell, Benjamin W. 2018. Inferring Latent Roles in Longitudinal Networks. Forthcoming in Political Analysis.
 #' @examples
 #' plots <- plot_ego_tergm(ego_tergm_fit = ego_tergm_fit)
 #' plots[[1]]

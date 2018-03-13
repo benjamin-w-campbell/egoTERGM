@@ -20,7 +20,6 @@ plot_ego_tergm(ego_tergm_fit = NULL, plot_indices = NULL, node.size = 6,
 }
 \value{
 A list of network plots with nodes colored by role assignment.
-#@references Campbell, Benjamin W. 2017. Inferring Latent Roles in Longitudinal Networks using the Ego-TERGM. Working Paper.
 }
 \description{
 This function assists the user in interpreting ouput from the ego_tergm function.
@@ -29,6 +28,9 @@ This function assists the user in interpreting ouput from the ego_tergm function
 plots <- plot_ego_tergm(ego_tergm_fit = ego_tergm_fit)
 plots[[1]]
 plots[[2]]
+}
+\references{
+Campbell, Benjamin W. 2018. Inferring Latent Roles in Longitudinal Networks. Forthcoming in Political Analysis.
 }
 \keyword{assignments}
 \keyword{interpretation}
