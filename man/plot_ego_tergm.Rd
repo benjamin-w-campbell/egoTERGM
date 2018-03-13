@@ -30,7 +30,11 @@ plots[[1]]
 plots[[2]]
 }
 \references{
-Campbell, Benjamin W. 2018. Inferring Latent Roles in Longitudinal Networks. Forthcoming in Political Analysis.
+{
+ Campbell, Benjamin W. (2018):
+ Inferring Latent Roles in Longitudinal Networks.
+ Forthcoming in \emph{Political Analysis}.
+}
 }
 \keyword{assignments}
 \keyword{interpretation}

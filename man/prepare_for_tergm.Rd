@@ -76,5 +76,13 @@ role1_btergm <- btergm(net_list[[1]] ~ edges + mutual + triangle + nodeicov('ide
 }
 }
 \references{
-Campbell, Benjamin W. 2018. Inferring Latent Roles in Longitudinal Networks. Forthcoming in Political Analysis.
+{
+ Campbell, Benjamin W. (2018):
+ Inferring Latent Roles in Longitudinal Networks.
+ Forthcoming in \emph{Political Analysis}.
+
+ Leifeld, Philip, Skyler J. Cranmer and Bruce A. Desmarais (2017):
+ Temporal Exponential Random Graph Models with btergm: Estimationand Bootstrap Confidence Intervals.
+  \emph{Journal of Statistical Software} 83(6): 1-36. \url{http://dx.doi.org/10.18637/jss.v083.i06}
+}
 }

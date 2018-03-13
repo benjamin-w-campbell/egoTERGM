@@ -21,7 +21,11 @@ interpret_ego_tergm(ego_tergm_fit = ego_tergm_fit,
                                         "In-Degree", "Out-Degree", "Sex Homophily"))
 }
 \references{
-Campbell, Benjamin W. 2018. Inferring Latent Roles in Longitudinal Networks. Forthcoming in Political Analysis.
+{
+ Campbell, Benjamin W. (2018):
+ Inferring Latent Roles in Longitudinal Networks.
+ Forthcoming in \emph{Political Analysis}.
+}
 }
 \keyword{interpretation}
 \keyword{summary}

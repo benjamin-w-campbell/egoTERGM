@@ -101,8 +101,14 @@ ego_tergm_fit <- ego_tergm(net = net,
 }
 }
 \references{
-Campbell, Benjamin W. 2018. Inferring Latent Roles in Longitudinal Networks. Forthcoming in Political Analysis.
+{
+ Campbell, Benjamin W. (2018):
+ Inferring Latent Roles in Longitudinal Networks.
+ Forthcoming in \emph{Political Analysis}.
 
-Leifeld, Philip, Skyler J. Cranmer and Bruce A. Desmarais (2017). btergm. Temporal Exponential Random Graph Models by Bootstrapped Pseudolikelihood. R package version 1.9.0.
+ Leifeld, Philip, Skyler J. Cranmer and Bruce A. Desmarais (2017):
+ Temporal Exponential Random Graph Models with btergm: Estimationand Bootstrap Confidence Intervals.
+  \emph{Journal of Statistical Software} 83(6): 1-36. \url{http://dx.doi.org/10.18637/jss.v083.i06}
+}
 }
 \keyword{ego-TERGM}

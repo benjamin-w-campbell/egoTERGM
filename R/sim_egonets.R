@@ -15,7 +15,11 @@
 #' @param tol The difference in parameter estimates between EM iterations to determine if the algorithm has converged.  Defaults to 1e-6.
 #' @return A list of simulated ego-networks and the output of the ego_tergm function fit to this.
 #' @keywords simulation networks
-#' @references Campbell, Benjamin W. 2018. Inferring Latent Roles in Longitudinal Networks. Forthcoming in Political Analysis.
+#' @references{
+#'  Campbell, Benjamin W. (2018):
+#'  Inferring Latent Roles in Longitudinal Networks.
+#'  Forthcoming in \emph{Political Analysis}.
+#' }
 #' @examples
 #' \dontrun{
 #' net <- sim_egonets(form = c("edges", "gwesp(0.8,fixed=TRUE)", "gwdegree(decay=0.8,fixed=TRUE)"),
