@@ -11,9 +11,9 @@ ego_ergm(net = NULL, form = NULL, core_size = 1, min_size = 5,
 \arguments{
 \item{net}{The cross-sectional network that an ego-ERGM will be fit on.  Must be presented as a network object.  Any vertex attributes should be attached to networks.  Currently the function does not support comparisons of whole networks.}
 
-\item{form}{The formula comprised of ERGM or TERGM terms used to distuinguish between clusters assignments.  Specified as a vector of comma seperated terms. No default.}
+\item{form}{The formula comprised of ERGM or TERGM terms used to distinguish between clusters assignments.  Specified as a vector of comma separated terms. No default.}
 
-\item{core_size}{The order of alters to include. The defaul value of one implies only looking at an ego's alters and the connections among them.}
+\item{core_size}{The order of alters to include. The default value of one implies only looking at an ego's alters and the connections among them.}
 
 \item{min_size}{The minimum number of nodes an ego-network must achieve to be included.  Defaults to five.}
 

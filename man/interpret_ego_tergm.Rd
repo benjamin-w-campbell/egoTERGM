@@ -12,7 +12,7 @@ interpret_ego_tergm(ego_tergm_fit = NULL, custom_var_names = NULL)
 \item{custom_var_names}{A vector of character terms in the same order as the form object fed to ego_tergm of clearer names for these variables.}
 }
 \description{
-This function assists the user in interpreting ouput from the ego_tergm function.
+This function assists the user in interpreting output from the ego_tergm function.
 }
 \examples{
 interpret_ego_tergm(ego_tergm_fit = ego_tergm_fit)

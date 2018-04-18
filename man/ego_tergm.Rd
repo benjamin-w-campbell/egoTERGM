@@ -12,9 +12,9 @@ ego_tergm(net = NULL, form = NULL, core_size = 1, min_size = 5,
 \arguments{
 \item{net}{The longitudinally observed network that an ego-TERGM will be fit on.  Must be presented as a list of networks.  Any vertex attributes should be attached to networks.  Currently the function does not support comparisons of whole networks.}
 
-\item{form}{The formula comprised of ERGM or TERGM terms used to distuinguish between clusters assignments.  Specified as a vector of comma seperated terms. No default.}
+\item{form}{The formula comprised of ERGM or TERGM terms used to distinguish between clusters assignments.  Specified as a vector of comma separated terms. No default.}
 
-\item{core_size}{The order of alters to include. The defaul value of one implies only looking at an ego's alters and the connections among them.}
+\item{core_size}{The order of alters to include. The default value of one implies only looking at an ego's alters and the connections among them.}
 
 \item{min_size}{The minimum number of nodes an ego-network must achieve to be included.  Defaults to five.}
 
@@ -107,7 +107,7 @@ ego_tergm_fit <- ego_tergm(net = net,
  Forthcoming in \emph{Political Analysis}.
 
  Leifeld, Philip, Skyler J. Cranmer and Bruce A. Desmarais (2017):
- Temporal Exponential Random Graph Models with btergm: Estimationand Bootstrap Confidence Intervals.
+ Temporal Exponential Random Graph Models with btergm: Estimation and Bootstrap Confidence Intervals.
   \emph{Journal of Statistical Software} 83(6): 1-36. \url{http://dx.doi.org/10.18637/jss.v083.i06}
 }
 }

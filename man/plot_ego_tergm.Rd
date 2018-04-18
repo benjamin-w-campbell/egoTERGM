@@ -22,7 +22,7 @@ plot_ego_tergm(ego_tergm_fit = NULL, plot_indices = NULL, node.size = 6,
 A list of network plots with nodes colored by role assignment.
 }
 \description{
-This function assists the user in interpreting ouput from the ego_tergm function.
+This function assists the user in interpreting output from the ego_tergm function.
 }
 \examples{
 plots <- plot_ego_tergm(ego_tergm_fit = ego_tergm_fit)
