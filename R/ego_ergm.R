@@ -2,10 +2,10 @@
 #'
 #' This function estimates an ego-ERGM.  Code taken from Salter-Townshend and Murphy (2015)'s replication archive.
 #' @param net The cross-sectional network that an ego-ERGM will be fit on.  Must be presented as a network object.  Any vertex attributes should be attached to networks.  Currently the function does not support comparisons of whole networks.
-#' @param core_size The order of alters to include. The defaul value of one implies only looking at an ego's alters and the connections among them.
+#' @param core_size The order of alters to include. The default value of one implies only looking at an ego's alters and the connections among them.
 #' @param min_size  The minimum number of nodes an ego-network must achieve to be included.  Defaults to five.
 #' @param roles The number of roles that should be fit.  Defaults to 3.
-#' @param form The formula comprised of ERGM or TERGM terms used to distuinguish between clusters assignments.  Specified as a vector of comma seperated terms. No default.
+#' @param form The formula comprised of ERGM or TERGM terms used to distinguish between clusters assignments.  Specified as a vector of comma separated terms. No default.
 #' @param directed Should the longitudinal network be treated as directed? If so, specify as the default TRUE.
 #' @param edge_covariates Are edge covariates included in the form term? IF so, specify as TRUE.  No default.
 #' @param seed The seed set to replicate analysis for pseudorandom number generator.

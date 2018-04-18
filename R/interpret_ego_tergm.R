@@ -1,6 +1,6 @@
 #' Custom interpret function for ego-TERGM.
 #'
-#' This function assists the user in interpreting ouput from the ego_tergm function.
+#' This function assists the user in interpreting output from the ego_tergm function.
 #' @param ego_tergm_fit The output from a fitted "ego_tergm".
 #' @param custom_var_names A vector of character terms in the same order as the form object fed to ego_tergm of clearer names for these variables.
 #' @keywords summary interpretation

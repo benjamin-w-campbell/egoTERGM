@@ -1,6 +1,6 @@
 #' Function to plot role assignments.
 #'
-#' This function assists the user in interpreting ouput from the ego_tergm function.
+#' This function assists the user in interpreting output from the ego_tergm function.
 #' @param ego_tergm_fit The output from a fitted "ego_tergm".
 #' @param plot_indices A vector of indices reflecting the time steps that plots should be returned for.  In networks observed over many time intervals it may be unrealistic to plot every network.
 #' @param node.size The size of the nodes fed to ggnet2.

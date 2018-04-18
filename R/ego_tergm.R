@@ -2,10 +2,10 @@
 #'
 #' This function estimates an ego-TERGM on a longitudinally observed network.  Currently the function does not support comparisons of whole networks.
 #' @param net The longitudinally observed network that an ego-TERGM will be fit on.  Must be presented as a list of networks.  Any vertex attributes should be attached to networks.  Currently the function does not support comparisons of whole networks.
-#' @param core_size The order of alters to include. The defaul value of one implies only looking at an ego's alters and the connections among them.
+#' @param core_size The order of alters to include. The default value of one implies only looking at an ego's alters and the connections among them.
 #' @param min_size  The minimum number of nodes an ego-network must achieve to be included.  Defaults to five.
 #' @param roles The number of roles that should be fit.  Defaults to 3.
-#' @param form The formula comprised of ERGM or TERGM terms used to distuinguish between clusters assignments.  Specified as a vector of comma seperated terms. No default.
+#' @param form The formula comprised of ERGM or TERGM terms used to distinguish between clusters assignments.  Specified as a vector of comma separated terms. No default.
 #' @param add_drop Do nodes drop out of the network or enter it? If so, specify as the default TRUE.
 #' @param directed Should the longitudinal network be treated as directed? If so, specify as the default TRUE.
 #' @param edge_covariates Are edge covariates included in the form term? IF so, specify as TRUE.  No default.  These should be stored as network attributes.
@@ -26,7 +26,7 @@
 #'  Forthcoming in \emph{Political Analysis}.
 #'
 #'  Leifeld, Philip, Skyler J. Cranmer and Bruce A. Desmarais (2017):
-#'  Temporal Exponential Random Graph Models with btergm: Estimationand Bootstrap Confidence Intervals.
+#'  Temporal Exponential Random Graph Models with btergm: Estimation and Bootstrap Confidence Intervals.
 #'   \emph{Journal of Statistical Software} 83(6): 1-36. \url{http://dx.doi.org/10.18637/jss.v083.i06}
 #' }
 #' @examples

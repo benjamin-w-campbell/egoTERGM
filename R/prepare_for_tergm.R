@@ -1,6 +1,6 @@
 #' Prepares ego-TERGM output for xergm's btergm function.
 #'
-#' This takes the output of an ego-TERGM call and prepares it for use by the xergm btergm function.  Note: This routine assumes temporal independence wihin ego-netwworks and independence acrosss ego-networks.
+#' This takes the output of an ego-TERGM call and prepares it for use by the xergm btergm function.  Note: This routine assumes temporal independence within ego-networks and independence across ego-networks.
 #' @param ego_tergm_fit The output of an ego-TERGM call.
 #' @return A list of length G containing pooled cluster assignments.  First-level elements of this list may be fed to a btergm call.
 #' @references{
@@ -9,7 +9,7 @@
 #'  Forthcoming in \emph{Political Analysis}.
 #'
 #'  Leifeld, Philip, Skyler J. Cranmer and Bruce A. Desmarais (2017):
-#'  Temporal Exponential Random Graph Models with btergm: Estimationand Bootstrap Confidence Intervals.
+#'  Temporal Exponential Random Graph Models with btergm: Estimation and Bootstrap Confidence Intervals.
 #'   \emph{Journal of Statistical Software} 83(6): 1-36. \url{http://dx.doi.org/10.18637/jss.v083.i06}
 #' }
 #' @examples
