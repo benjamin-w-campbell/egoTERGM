@@ -1,5 +1,5 @@
 Package: egoTERGM
-Date: 2018-3-13
+Date: 2018-4-18
 Type: Package
 Title: Estimation of Ego-Temporal Exponential Random Graph Models via Expectation Maximization (EM)
 Version: 1.0.0
