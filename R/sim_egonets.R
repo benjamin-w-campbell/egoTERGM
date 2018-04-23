@@ -30,7 +30,7 @@
 #'                   egonet_size = 20,
 #'                   R = 30,
 #'                   parallel = "multicore",
-#'                   ncpus = 3,
+#'                   ncpus = 1,
 #'                   steps = 50,
 #'                   tol = 1e-6)
 #' }
