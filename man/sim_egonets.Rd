@@ -49,7 +49,7 @@ net <- sim_egonets(form = c("edges", "gwesp(0.8,fixed=TRUE)", "gwdegree(decay=0.
                   egonet_size = 20,
                   R = 30,
                   parallel = "multicore",
-                  ncpus = 3,
+                  ncpus = 1,
                   steps = 50,
                   tol = 1e-6)
 }
