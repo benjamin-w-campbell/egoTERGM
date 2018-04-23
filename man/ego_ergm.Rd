@@ -38,7 +38,7 @@ A list of model results, including lambda (the probability of assignments), grou
 This function estimates an ego-ERGM.  Code taken from Salter-Townshend and Murphy (2015)'s replication archive.
 }
 \examples{
-\dontrun{
+\donttest{
 # Code from xergm.common and their preparation of the Knecht network
 library(xergm.common)
 set.seed(1)

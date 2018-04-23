@@ -48,7 +48,7 @@ A list of model results, including lambda (the probability of assignments), grou
 This function estimates an ego-TERGM on a longitudinally observed network.  Currently the function does not support comparisons of whole networks.
 }
 \examples{
-\dontrun{
+\donttest{
 # Code from xergm.common and their preparation of the Knecht network
 library(xergm.common)
 set.seed(1)

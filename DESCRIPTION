@@ -7,7 +7,7 @@ Authors@R: c(person(given = c("Benjamin", "W."), family = "Campbell", email = "c
 Author: Benjamin W. Campbell [aut, cre], Michael Salter-Townshend [ctb], Thomas Brendan Murphy [ctb]
 Maintainer: Benjamin W. Campbell <campbell.1721@osu.edu>
 URL: http://github.com/benjamin-w-campbell/egoTERGM
-Description: Estimation of ego-Temporal Exponential Random Graph Models with two-stage estimation including initialization through k-means clustering on Temporal Exponential Random Graph Model model parameters and EM.
+Description: Estimation of ego-temporal exponential random graph models with two-stage estimation including initialization through k-means clustering on Temporal Exponential Random Graph Model model parameters and EM as per Campbell (2018) <doi:10.7910/DVN/TWHEZ9>.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

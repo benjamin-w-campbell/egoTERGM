@@ -16,7 +16,7 @@ A list of length G containing pooled cluster assignments.  First-level elements 
 This takes the output of an ego-TERGM call and prepares it for use by the xergm btergm function.  Note: This routine assumes temporal independence within ego-networks and independence across ego-networks.
 }
 \examples{
-\dontrun{
+\donttest{
 # Code from xergm.common and their preparation of the Knecht network
 library(xergm.common)
 set.seed(1)

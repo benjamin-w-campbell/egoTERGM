@@ -40,7 +40,7 @@ A list of simulated ego-networks and the output of the ego_tergm function fit to
 This function simulated longitudinal ego-networks and estimates an ego-TERGM. Useful for monte carlos and proofs of concept.
 }
 \examples{
-\dontrun{
+\donttest{
 net <- sim_egonets(form = c("edges", "gwesp(0.8,fixed=TRUE)", "gwdegree(decay=0.8,fixed=TRUE)"),
                   params = rbind(c(-3,1,0), c(-1,-2,-1), c(-2,0,2)),
                   roles = 3,

@@ -30,7 +30,7 @@
 #'   \emph{Journal of Statistical Software} 83(6): 1-36. \url{http://dx.doi.org/10.18637/jss.v083.i06}
 #' }
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Code from xergm.common and their preparation of the Knecht network
 #' library(xergm.common)
 #' set.seed(1)

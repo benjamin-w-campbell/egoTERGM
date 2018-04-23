@@ -17,7 +17,7 @@
 #' @keywords ego-ERGM
 #' @references Salter-Townshend, M. and T.B. Murphy. 2015. Role Analysis in Networks using Mixtures of Exponential Random Graph Models. Journal of Computational and Graphical Statistics, 24(2): 520-538.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Code from xergm.common and their preparation of the Knecht network
 #' library(xergm.common)
 #' set.seed(1)
