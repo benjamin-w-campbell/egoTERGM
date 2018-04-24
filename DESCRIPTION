@@ -1,13 +1,13 @@
 Package: egoTERGM
 Date: 2018-4-18
 Type: Package
-Title: Estimation of Ego-Temporal Exponential Random Graph Models via Expectation Maximization (EM)
+Title: Estimation of ego-Temporal Exponential Random Graph Models via Expectation Maximization (EM)
 Version: 1.0.0
 Authors@R: c(person(given = c("Benjamin", "W."), family = "Campbell", email = "campbell.1721@osu.edu", role = c("aut", "cre")), person(given = c("Michael"), family = "Salter-Townshend", email = "michael.salter-townshend@ucd.ie", role = "ctb"), person(given = c("Thomas", "Brendan"), family = "Murphy", email = "brendan.murphy@ucd.ie", role = "ctb"))
 Author: Benjamin W. Campbell [aut, cre], Michael Salter-Townshend [ctb], Thomas Brendan Murphy [ctb]
 Maintainer: Benjamin W. Campbell <campbell.1721@osu.edu>
 URL: http://github.com/benjamin-w-campbell/egoTERGM
-Description: Estimation of ego-temporal exponential random graph models with two-stage estimation including initialization through k-means clustering on Temporal Exponential Random Graph Model model parameters and EM as per Campbell (2018) <doi:10.7910/DVN/TWHEZ9>.
+Description: Estimation of Ego-temporal exponential random graph models with two-stage estimation including initialization through k-means clustering on temporal exponential random graph model parameters and EM as per Campbell (2018) <doi:10.7910/DVN/TWHEZ9>.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
