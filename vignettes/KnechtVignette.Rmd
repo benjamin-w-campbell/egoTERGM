@@ -11,7 +11,7 @@ vignette: >
 ---
 
 ## Vignette Info and Introduction
-  This vignette uses the `Knecht` data from Knecht (2006) and Knecht (2008) to provide an illustrative example of estimating an ego-Temporal Exponential Random Graph Model (ego-TERGM) using the `egoTERGM` package [@knecht2006networks, @knecht2008friendship].  It begins by estimating an ego-TERGM on the Knecht friendship network, a network of 26 students in a Dutch classroom measured across four time-periods.  In addition to data on the friendships between students there is nodal attribute data on a variety of demographic and behavioral factors.  Fur a detailed explanation of the data, I refer the reader to the original publications on the data or to the `xergm.common` help page for the `knecht` data: `??knecht`.  
+  This vignette uses the `Knecht` data from Knecht (2006) and Knecht (2008) to provide an illustrative example of estimating an ego-Temporal Exponential Random Graph Model (ego-TERGM) using the `egoTERGM` package [@knecht2006networks, @knecht2008friendship].  It begins by estimating an ego-TERGM on the Knecht friendship network, a network of 26 students in a Dutch classroom measured across four time-periods.  In addition to data on the friendships between students there is nodal attribute data on a variety of demographic and behavioral factors.  For a detailed explanation of the data, I refer the reader to the original publications on the data or to the `xergm.common` help page for the `knecht` data: `??knecht`.  
 
 Much of the code for estimating the ego-TERGM is a modification of code originally produced for its cross-sectional equivalent [@salter2015role]. This vignette will proceed step-by-step in presenting the typical workflow for estimating and interpreting an ego-TERGM using `egoTERGM`.  
 
@@ -19,7 +19,7 @@ Much of the code for estimating the ego-TERGM is a modification of code original
   
 ## Importing Knecht Network
   
-  The following chunk of code imports the Knecht friendship network gathered by Andrea Knecht and provided in the `xergm.common` package [@leifeld2014xergm].  It also uses some code from the `xergm.common` package to prepare the network for the `ego_tergm` function, note that it produces a list of network objects.
+  The following chunk of code imports the Knecht friendship network gathered by Andrea Knecht and provided in the `xergm.common` package [@leifeld2014xergm, leifeld2017temporal].  It also uses some code from the `xergm.common` package to prepare the network for the `ego_tergm` function, note that it produces a list of network objects.
 
 ```{r, eval = FALSE}
 library(xergm.common)
@@ -61,23 +61,24 @@ rm(list=setdiff(ls(), "net"))
 ```
 
 ## Estimation of ego-TERGM
-Once the data is imported and transformed into a `list` of `network` objects with relevant attributes appended to each network in that list, we can proceed with estimating the ego-TERGM using `ego_tergm`.  Underneath the hood, quite a bit is occuring when the user calls this function.  First, the function transforms the list of longitudinally observed networks into a list of longitudinally observed ego-networks.  From that point, the initialization proceedure described by Campbell (2017) is used, including the estimation of a TERGM via bootstrapped pseudolikelihood and subsequent clustering of TERGM parameters using k-means clustering [@campbell2017inferring].  Upon initialization, an Expectation Maximization (EM) algorithm is used to find group-centroids and role assignments.  
+Once the data is imported and transformed into a `list` of `network` objects with relevant attributes appended to each network in that list, we can proceed with estimating the ego-TERGM using `ego_tergm`.  Underneath the hood, quite a bit is occuring when the user calls this function.  First, the function transforms the list of longitudinally observed networks into a list of longitudinally observed ego-networks.  From that point, the initialization proceedure described by Campbell (2018) is used, including the estimation of a TERGM via bootstrapped pseudolikelihood and subsequent clustering of TERGM parameters using k-means clustering [@campbell2017inferring].  Upon initialization, an Expectation Maximization (EM) algorithm is used to find group-centroids and role assignments.  
 
 The `ego_tergm` function requires a few arguments:
-*`net`: The list of network objects previously discussed.
-*`form`: A vector of comma-seperated `ergm-terms` used to distinguish between role assignments.
-*`core_size`: The number of alters out from the ego to include and connections among them.
-*`min_size`: The minimum size that an ego-network at a particular time period must achieve to be included.
-*`roles`: The number of roles to be fit.
-*`add_drop`: Whether nodes drop in or drop out of the network.
-*`directed`: If the network is directed or not.
-*`edge_covariates`: In the `form` call, are edge or dyad covariates required?
-*`seed`: Seed set for replication.
-*`R`: The number of bootstrap replications for the TERGM to be used to generate initial values.
-*`parallel`: Should parallel computing be used? If no, specify "no", otherwise specify "snow" or "multicore".
-*`ncpus`: If parallel computing is to be used, how many CPUs should be used.
-*`steps`: The maximum number of steps that the EM process should go through.
-*`tol`: The acceptance level to assess the convergence of the EM algorithm.
+
+* `net`: The list of network objects previously discussed.
+* `form`: A vector of comma-seperated `ergm-terms` used to distinguish between role assignments.
+* `core_size`: The number of alters out from the ego to include and connections among them.
+* `min_size`: The minimum size that an ego-network at a particular time period must achieve to be included.
+* `roles`: The number of roles to be fit.
+* `add_drop`: Whether nodes drop in or drop out of the network.
+* `directed`: If the network is directed or not.
+* `edge_covariates`: In the `form` call, are edge or dyad covariates required?
+* `seed`: Seed set for replication.
+* `R`: The number of bootstrap replications for the TERGM to be used to generate initial values.
+* `parallel`: Should parallel computing be used? If no, specify "no", otherwise specify "snow" or "multicore".
+* `ncpus`: If parallel computing is to be used, how many CPUs should be used.
+* `steps`: The maximum number of steps that the EM process should go through.
+* `tol`: The acceptance level to assess the convergence of the EM algorithm.
 
 ```{r, eval = FALSE}
 library(egoTERGM)
@@ -107,6 +108,19 @@ plots <- plot_ego_tergm(ego_tergm_fit = ego_tergm_fit)
 plots[[1]]
 
 ```
+
+## Assessing Role Generative Structure
+To assist in interpreting the role generative structure of role assignments, I have included a simple function, `prepare_for_tergm`, that takes the output of an `ego_tergm` call and transforms it into a format that can be used by the `btergm` function [@leifeld2017temporal].  The code for this is as follows:
+```{r, eval = FALSE}
+net_list <- prepare_for_tergm(ego_tergm_fit = ego_tergm_fit)
+
+# Indexing of the output for prepare_for_tergm refers to the role numbering from initial ego_tergm_fit
+role1_btergm <- btergm(net_list[[1]] ~ edges + mutual + triangle + nodeicov('idegsqrt') +
+                                        nodeocov('odegsqrt') + nodematch('sex'),
+                        R = 500)
+
+```
+
 
 # References
 
