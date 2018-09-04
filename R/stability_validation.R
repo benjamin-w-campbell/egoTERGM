@@ -73,7 +73,7 @@
 #'                           tol = 1e-06)
 #'
 #' stability_check <- stability_validation(ego_tergm_fit = ego_tergm_fit)
-#' print(tability_check$)
+#' print(tability_check$comparison_table)
 #' }
 #' @export
 #'
