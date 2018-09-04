@@ -15,7 +15,7 @@
 #' @param ncpus The number of CPUs that should should be used for estimation, defaults to 1.
 #' @param steps The number of default EM steps that should be taken, defaults to 50.
 #' @param tol The difference in parameter estimates between EM iterations to determine if the algorithm has converged.  Defaults to 1e-6.
-#' @return A list of model results, including lambda (the probability of assignments), group.theta (the roles by terms cluster centroids),
+#' @return A list of model results and input values, including net (original networks), lambda (the probability of assignments), group.theta (the roles by terms cluster centroids),
 #'         EE.BIC (the Salter-Townshend and Murphy BIC cross-sectional BIC), TS.BIC (the Campbell BIC penalizing for time-steps),
 #'        role_assignments (a data frame of the most likely assignments), reduced_networks (A list of the networks with excluded egos),
 #'        ego_nets (a list of ego-networks), and ego_nets_used (N x T matrix of logicals here TRUE refers to ego-networks kept).
@@ -1609,7 +1609,14 @@ ego_tergm <- function(net = NULL,
   cat("Done.", "\n")
   cat("Completed Time:", format(Sys.time(), "%a %b %d %X %Y"), "\n")
   return(list(model.fit = "egoTERGM",
+              net = orig_nets,
               lambda = lambda,
+              core_size = core_size,
+              min_size = min_size,
+              roles = roles,
+              add_drop = add_drop,
+              directed = directed,
+              edge_covariates = edge_covariates,
               group.theta = group.theta,
               EE.BIC = EE.BIC,
               TS.BIC = TS.BIC,
