@@ -76,6 +76,7 @@
 #' print(tability_check$)
 #' }
 #' @export
+#'
 stability_validation <- function(ego_tergm_fit = NULL,
                                  splitting_probability = 0.5,
                                  seed = 12345,
