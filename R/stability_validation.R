@@ -9,7 +9,7 @@
 #' @param ncpus The number of CPUs that should should be used for estimation, defaults to 1.
 #' @param steps The number of default EM steps that should be taken, defaults to 50.
 #' @param tol The difference in parameter estimates between EM iterations to determine if the algorithm has converged.  Defaults to 1e-6.
-#' @return Returns comparison_table (a matrix of cross-tabulation results that allows for comparisons of common cluster assignments), networks_sampled (which networks were included in the new validation sample),
+#' @return Returns comparison_table (a matrix of cross-tabulation results to compare common cluster assignments or if incompatible a table of relative proportions sorted by value to allow for comparisons under set incompatibility and label switching), networks_sampled (which networks were included in the new validation sample),
 #'         comparison_lambda (the matrix of role assignments for validation networks), comparison_group.theta (centroids for validation networks),
 #'         comparison_EE.BIC (Salter-Townshend and Murphy BIC that doesn't penalize for longitudinal networks for validation networks),
 #'         comparison_TS.BIC (BIC that penalizes for longitudinal networks for validation networks), comparison_role_assignments (role assignments for validation networks),
