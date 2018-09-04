@@ -22,9 +22,9 @@ interpret_ego_tergm(ego_tergm_fit = ego_tergm_fit,
 }
 \references{
 {
- Campbell, Benjamin W. (2018):
+Campbell, Benjamin W. (2018):
  Inferring Latent Roles in Longitudinal Networks.
- Forthcoming in \emph{Political Analysis}.
+ \emph{Political Analysis} 26(3): 292-311.  \url{https://doi.org/10.1017/pan.2018.20}
 }
 }
 \keyword{interpretation}

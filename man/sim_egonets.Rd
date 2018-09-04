@@ -56,9 +56,13 @@ net <- sim_egonets(form = c("edges", "gwesp(0.8,fixed=TRUE)", "gwdegree(decay=0.
 }
 \references{
 {
- Campbell, Benjamin W. (2018):
+#' Campbell, Benjamin W. (2018):
  Inferring Latent Roles in Longitudinal Networks.
- Forthcoming in \emph{Political Analysis}.
+ \emph{Political Analysis} 26(3): 292-311.  \url{https://doi.org/10.1017/pan.2018.20}
+
+ Salter-Townshend, Michael and Thomas Brendan Murphy. (2015):
+ Role Analysis in Networks using Mixtures of Exponential Random Graph Models.
+ \emph{Journal of Computational and Graphical Statistics} 24(2): 520-538. \url{https://doi.org/10.1080/10618600.2014.923777}
 }
 }
 \keyword{networks}

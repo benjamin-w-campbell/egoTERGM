@@ -88,6 +88,18 @@ ego_ergm_fit <- ego_ergm(net = net[[1]],
 }
 }
 \references{
-Salter-Townshend, M. and T.B. Murphy. 2015. Role Analysis in Networks using Mixtures of Exponential Random Graph Models. Journal of Computational and Graphical Statistics, 24(2): 520-538.
+{
+ Box-Steffensmeier, Janet M., Benjamin W. Campbell, Dino P. Christenson, Zachary Navabi. (2018):
+ Role analysis using the ego-ERGM: A Look at environmental interest group coalitions.
+ \emph{Social Networks} 52: 213-227.  \url{https://doi.org/10.1016/j.socnet.2017.08.004}
+
+Campbell, Benjamin W. (2018):
+ Inferring Latent Roles in Longitudinal Networks.
+ \emph{Political Analysis} 26(3): 292-311.  \url{https://doi.org/10.1017/pan.2018.20}
+
+ Salter-Townshend, Michael and Thomas Brendan Murphy. (2015):
+ Role Analysis in Networks using Mixtures of Exponential Random Graph Models.
+ \emph{Journal of Computational and Graphical Statistics} 24(2): 520-538. \url{https://doi.org/10.1080/10618600.2014.923777}
+}
 }
 \keyword{ego-ERGM}
