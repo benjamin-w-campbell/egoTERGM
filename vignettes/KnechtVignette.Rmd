@@ -61,7 +61,7 @@ rm(list=setdiff(ls(), "net"))
 ```
 
 ## Estimation of ego-TERGM
-Once the data is imported and transformed into a `list` of `network` objects with relevant attributes appended to each network in that list, we can proceed with estimating the ego-TERGM using `ego_tergm`.  Underneath the hood, quite a bit is occuring when the user calls this function.  First, the function transforms the list of longitudinally observed networks into a list of longitudinally observed ego-networks.  From that point, the initialization proceedure described by Campbell (2018) is used, including the estimation of a TERGM via bootstrapped pseudolikelihood and subsequent clustering of TERGM parameters using k-means clustering [@campbell2017inferring].  Upon initialization, an Expectation Maximization (EM) algorithm is used to find group-centroids and role assignments.  
+Once the data is imported and transformed into a `list` of `network` objects with relevant attributes appended to each network in that list, we can proceed with estimating the ego-TERGM using `ego_tergm`.  Underneath the hood, quite a bit is occuring when the user calls this function.  First, the function transforms the list of longitudinally observed networks into a list of longitudinally observed ego-networks.  From that point, the initialization proceedure described by Campbell (2018) is used, including the estimation of a TERGM via bootstrapped pseudolikelihood and subsequent clustering of TERGM parameters using k-means clustering [@campbell2018detecting].  Upon initialization, an Expectation Maximization (EM) algorithm is used to find group-centroids and role assignments.  
 
 The `ego_tergm` function requires a few arguments:
 
