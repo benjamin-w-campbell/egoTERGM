@@ -39,7 +39,7 @@ ego_tergm(net = NULL, form = NULL, core_size = 1, min_size = 5,
 \item{tol}{The difference in parameter estimates between EM iterations to determine if the algorithm has converged.  Defaults to 1e-6.}
 }
 \value{
-A list of model results, including lambda (the probability of assignments), group.theta (the roles by terms cluster centroids),
+A list of model results and input values, including net (original networks), lambda (the probability of assignments), group.theta (the roles by terms cluster centroids),
         EE.BIC (the Salter-Townshend and Murphy BIC cross-sectional BIC), TS.BIC (the Campbell BIC penalizing for time-steps),
        role_assignments (a data frame of the most likely assignments), reduced_networks (A list of the networks with excluded egos),
        ego_nets (a list of ego-networks), and ego_nets_used (N x T matrix of logicals here TRUE refers to ego-networks kept).
