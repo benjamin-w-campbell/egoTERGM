@@ -1,8 +1,8 @@
 Package: egoTERGM
-Date: 2018-9-4
+Date: 2018-10-4
 Type: Package
 Title: Estimation of Ego-Temporal Exponential Random Graph Models via Expectation Maximization (EM)
-Version: 1.0.1
+Version: 2.0.1
 Authors@R: c(person(given = c("Benjamin", "W."), family = "Campbell", email = "campbell.1721@osu.edu", role = c("aut", "cre")), person(given = c("Michael"), family = "Salter-Townshend", email = "michael.salter-townshend@ucd.ie", role = "ctb"), person(given = c("Thomas", "Brendan"), family = "Murphy", email = "brendan.murphy@ucd.ie", role = "ctb"))
 Author: Benjamin W. Campbell [aut, cre], Michael Salter-Townshend [ctb], Thomas Brendan Murphy [ctb]
 Maintainer: Benjamin W. Campbell <campbell.1721@osu.edu>
@@ -14,7 +14,6 @@ LazyData: true
 RoxygenNote: 6.0.1.9000
 Depends: 
   R (>= 3.4.0),
-  statnet (>= 2016.9),
   parallel (>= 3.3.3),
   btergm (>= 1.9.0),
   xergm.common (>= 1.7.7)
