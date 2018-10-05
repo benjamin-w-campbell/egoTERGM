@@ -6,7 +6,7 @@
 \usage{
 ego_tergm(net = NULL, form = NULL, core_size = 1, min_size = 5,
   roles = 3, add_drop = TRUE, directed = TRUE, edge_covariates = FALSE,
-  seed = 12345, R = 10, parallel = "no", ncpus = 1, steps = 50,
+  seed = 12345, R = 10, forking = FALSE, ncpus = 1, steps = 50,
   tol = 1e-06)
 }
 \arguments{
@@ -30,7 +30,7 @@ ego_tergm(net = NULL, form = NULL, core_size = 1, min_size = 5,
 
 \item{R}{The number of bootstrap replications that should be used for the estimation of a bootstrapped MPLE estimated TERGM for model initialization.  Defaults to 10.}
 
-\item{parallel}{How the BTERGM should be computed, either with parallel processing ("multicore", "snow") or no parallel processing ("no").  Defaults to no.}
+\item{forking}{If parallelization via forking should be used (TRUE) or if no parallel processing should be used (FALSE).  Currently, sockets are not supported.}
 
 \item{ncpus}{The number of CPUs that should should be used for estimation, defaults to 1.}
 
@@ -94,7 +94,7 @@ ego_tergm_fit <- ego_tergm(net = net,
                           edge_covariates = FALSE,
                           seed = 12345,
                           R = 10,
-                          parallel = "no",
+                          forking = FALSE,
                           ncpus = 1,
                           steps = 50,
                           tol = 1e-06)
