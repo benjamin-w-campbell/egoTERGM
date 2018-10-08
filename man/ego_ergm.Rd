@@ -6,7 +6,7 @@
 \usage{
 ego_ergm(net = NULL, form = NULL, core_size = 1, min_size = 5,
   roles = 3, directed = TRUE, edge_covariates = FALSE, seed = 12345,
-  steps = 50, tol = 1e-06)
+  forking = FALSE, ncpus = 1, steps = 50, tol = 1e-06)
 }
 \arguments{
 \item{net}{The cross-sectional network that an ego-ERGM will be fit on.  Must be presented as a network object.  Any vertex attributes should be attached to networks.  Currently the function does not support comparisons of whole networks.}
@@ -24,6 +24,10 @@ ego_ergm(net = NULL, form = NULL, core_size = 1, min_size = 5,
 \item{edge_covariates}{Are edge covariates included in the form term? IF so, specify as TRUE.  No default.}
 
 \item{seed}{The seed set to replicate analysis for pseudorandom number generator.}
+
+\item{forking}{If parallelization via forking should be used (TRUE) or if no parallel processing should be used (FALSE).  Currently, sockets are not supported.}
+
+\item{ncpus}{The number of CPUs that should should be used for estimation, defaults to 1.}
 
 \item{steps}{The number of default EM steps that should be taken, defaults to 50.}
 
@@ -80,6 +84,8 @@ ego_ergm_fit <- ego_ergm(net = net[[1]],
                           core_size = 1,
                           min_size = 5,
                           roles = 3,
+                          forking = FALSE,
+                          npus = 1,
                           directed = TRUE,
                           edge_covariates = FALSE,
                           seed = 12345,

@@ -9,6 +9,8 @@
 #' @param directed Should the longitudinal network be treated as directed? If so, specify as the default TRUE.
 #' @param edge_covariates Are edge covariates included in the form term? IF so, specify as TRUE.  No default.
 #' @param seed The seed set to replicate analysis for pseudorandom number generator.
+#' @param forking If parallelization via forking should be used (TRUE) or if no parallel processing should be used (FALSE).  Currently, sockets are not supported.
+#' @param ncpus The number of CPUs that should should be used for estimation, defaults to 1.
 #' @param steps The number of default EM steps that should be taken, defaults to 50.
 #' @param tol The difference in parameter estimates between EM iterations to determine if the algorithm has converged.  Defaults to 1e-6.
 #' @return A list of model results, including lambda (the probability of assignments), group.theta (the roles by terms cluster centroids),
@@ -71,6 +73,8 @@
 #'                           core_size = 1,
 #'                           min_size = 5,
 #'                           roles = 3,
+#'                           forking = FALSE,
+#'                           npus = 1,
 #'                           directed = TRUE,
 #'                           edge_covariates = FALSE,
 #'                           seed = 12345,
@@ -83,7 +87,15 @@ ego_ergm <- function(net = NULL,
                       form = NULL,
                       core_size = 1, min_size = 5, roles = 3, directed = TRUE, edge_covariates = FALSE,
                       seed = 12345,
+                     forking = FALSE, ncpus = 1,
                       steps = 50, tol = 1e-6){
+  cat("Start Time:", format(Sys.time(), "%a %b %d %X %Y"), "\n")
+  if (min_size<=1){
+    stop("Minimum size must be greater than 1.  Please adjust the min_size argument to a value greater than 1.")
+  }
+
+  cat("Data formatting started.", "\n")
+  # tested prior to 9/3/17
   set.seed(seed)
   N = network::network.size(net)
   orig_nets <- net
@@ -94,138 +106,114 @@ ego_ergm <- function(net = NULL,
   ########################################################################
 
   vertices <- network::get.vertex.attribute(net, 'vertex.names')
-  vertices <- vertices[order(as.integer(vertices))]
+  vertices <- vertices[order(vertices)]
 
   Y <- network::as.matrix.network(net)
 
   if(directed == FALSE){
     Y2 <- Y+t(Y)
     Y2[Y2 == 2] <- 1
-    Y2 <- Y2[order(as.integer(colnames(Y2))),order(as.integer(colnames(Y2)))]
-  }
-
-  if(directed == TRUE){
+    Y2 <- Y2[order(colnames(Y2)),order(colnames(Y2))]
+  } else {
     Y2 <- Y
-    Y2 <- Y2[order(as.integer(colnames(Y2))),order(as.integer(colnames(Y2)))]
+    Y2 <- Y2[order(colnames(Y2)),order(colnames(Y2))]
   }
 
   net2 <- network::network(Y2, directed = directed) #network object based upon the network matrix y which takes y and transforms it by	causing nodes to "jump backwards across links at the second step"
 
   x <- sna::gapply(net2,c(1,2),1:N,"*",1,distance=core_size)
 
-  for (i in 1:N)
-  {
-    x[[i]]<-c(i,x[[i]])
-    x[[i]]<-as.matrix(Y[x[[i]],x[[i]]])
+  reduce_adjacency <- function(i){
+    out <- as.matrix(Y[c(i,x[[i]]),c(i,x[[i]])])
+    return(out)
   }
-  x<-lapply(x,network::network,directed=directed)
+
+  if(forking == TRUE){
+    x<-parallel::mclapply(seq_along(x), reduce_adjacency, mc.cores = ncpus)
+    # make all the adjacency matrices into network objects
+    x<-parallel::mclapply(x, function(x) network::as.network.matrix(x, directed=directed), mc.cores = ncpus)
+  } else {
+    x<-lapply(seq_along(x), reduce_adjacency)
+    x<-lapply(x, function(x) network::as.network.matrix(x, directed=directed))
+  }
+
   rm(Y2,net2)
 
-  if (min_size>1)
-  {
+  if(forking == TRUE){
+    keep<-parallel::mclapply(x, network::network.size, mc.cores = ncpus)>=min_size
+  } else {
     keep<-lapply(x,network::network.size)>=min_size
-    all_net<-net
-    N=all_net$gal$n
-    net<-network::network(network::as.sociomatrix(all_net)[(1:N)[keep],(1:N)[keep]], directed = FALSE)
-    # Loop through and remove node attrs for those that are removed
-    for (att in network::list.vertex.attributes(all_net)){
-      network::set.vertex.attribute(net,att,network::get.vertex.attribute(all_net,att)[keep])
+  }
+
+  all_net<-net
+  N=all_net$gal$n
+  #net<-network::network(network::as.sociomatrix(all_net)[(1:N)[keep],(1:N)[keep]], directed = FALSE)
+  net<-network::delete.vertices(x = net, vid = which(get.vertex.attribute(net, 'vertex.names') %in% get.vertex.attribute(net, 'vertex.names')[keep==FALSE]))
+  x<-x[keep]
+
+  populate_attr <- function(i){
+    tmp_net <- x[[i]]
+    vertex_ids <- network::get.vertex.attribute(tmp_net, 'vertex.names')
+    indices <- which(network::get.vertex.attribute(all_net, 'vertex.names') %in% vertex_ids)
+
+    for(att in network::list.vertex.attributes(all_net)){
+      network::set.vertex.attribute(tmp_net, att, network::get.vertex.attribute(all_net, att)[indices])
     }
+
     if(edge_covariates == TRUE){
       for(att_e in setdiff(network::list.network.attributes(all_net), c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"))){
-        # setting edge attributes harder given how they're stored
+        # el <- as.matrix(all_net,matrix.type="edgelist")
+        #  el[,1] <- network::get.vertex.attribute(all_net, 'vertex.names')[el[,1]]
+        #el[,2] <- network::get.vertex.attribute(all_net, 'vertex.names')[el[,2]]
+        #el <- cbind(el, network::get.edge.attribute(all_net, att_e))
 
-        adj <- as.matrix(net, matrix.type = "adjacency")
+        adj <- as.matrix(all_net, matrix.type = "adjacency")
         adj <- adj[order(as.integer(colnames(adj))),order(as.integer(colnames(adj)))]
 
-        #el_red <- as.matrix(net, matrix.type="edgelist")
-        #el_red[,1] <- network::get.vertex.attribute(net, 'vertex.names')[el_red[,1]]
-        #el_red[,2] <- network::get.vertex.attribute(net, 'vertex.names')[el_red[,2]]
+        #el_red <- as.matrix(x[[i]], matrix.type="edgelist")
+        #el_red[,1] <- network::get.vertex.attribute(x[[i]], 'vertex.names')[el_red[,1]]
+        #el_red[,2] <- network::get.vertex.attribute(x[[i]], 'vertex.names')[el_red[,2]]
         #el_red <- cbind(el_red, NA)
+        adj_red <- as.matrix(tmp_net, matrix.type="adjacency")
 
+        net_att <- network::get.network.attribute(all_net, att_e)
 
-        net_att <- network::get.network.attribute(orig_nets, att_e)
+        colnames(net_att) <- network::get.vertex.attribute(all_net, 'vertex.names')
+        rownames(net_att) <- network::get.vertex.attribute(all_net, 'vertex.names')
 
-        colnames(net_att) <- network::get.vertex.attribute(orig_nets, 'vertex.names')
-        rownames(net_att) <- network::get.vertex.attribute(orig_nets, 'vertex.names')
-
-        adj_red <- as.matrix(net, matrix.type = "adjacency")
         vertices_red <- rownames(adj_red)
         net_red <- net_att[vertices_red, vertices_red]
-        # check to make sure that el's are same order
+
         #if(all(el_red[,1] %in% el[,2])){
         #  el_red <- cbind(el_red[,2], el_red[,1], NA)
         #}
 
-        # aad a third column to el_red which contains the edge attribute from el when edges were kept
+        #if(network::network.size(x[[i]]) == 1){
+        #  el_red <- matrix(nrow = 0, ncol = 3)
+        #}
+
         #m3 <- rbind(el, el_red)
         #el <- m3[duplicated(m3[,1:2], fromLast = TRUE), , drop = TRUE]
 
-        network::set.network.attribute(net,att_e,net_red)
+        #if(class(el) == "numeric" & length(el) == 3){
+        #  el <- t(as.matrix(el))
+        #}
 
-      }
-    }
-
-    x<-x[keep]
-
-    for(i in 1:length(x)){
-      vertex_ids <- network::get.vertex.attribute(x[[i]], 'vertex.names')
-      indices <- which(network::get.vertex.attribute(all_net, 'vertex.names') %in% vertex_ids)
-
-      for(att in network::list.vertex.attributes(all_net)){
-        network::set.vertex.attribute(x[[i]], att, network::get.vertex.attribute(all_net, att)[indices])
-      }
-
-      if(edge_covariates == TRUE){
-        for(att_e in setdiff(network::list.network.attributes(all_net), c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"))){
-          # el <- as.matrix(all_net,matrix.type="edgelist")
-          #  el[,1] <- network::get.vertex.attribute(all_net, 'vertex.names')[el[,1]]
-          #el[,2] <- network::get.vertex.attribute(all_net, 'vertex.names')[el[,2]]
-          #el <- cbind(el, network::get.edge.attribute(all_net, att_e))
-
-          adj <- as.matrix(all_net, matrix.type = "adjacency")
-          adj <- adj[order(as.integer(colnames(adj))),order(as.integer(colnames(adj)))]
-
-          #el_red <- as.matrix(x[[i]], matrix.type="edgelist")
-          #el_red[,1] <- network::get.vertex.attribute(x[[i]], 'vertex.names')[el_red[,1]]
-          #el_red[,2] <- network::get.vertex.attribute(x[[i]], 'vertex.names')[el_red[,2]]
-          #el_red <- cbind(el_red, NA)
-          adj_red <- as.matrix(x[[i]], matrix.type="adjacency")
-
-          net_att <- network::get.network.attribute(all_net, att_e)
-
-          colnames(net_att) <- network::get.vertex.attribute(all_net, 'vertex.names')
-          rownames(net_att) <- network::get.vertex.attribute(all_net, 'vertex.names')
-
-          vertices_red <- rownames(adj_red)
-          net_red <- net_att[vertices_red, vertices_red]
-
-          #if(all(el_red[,1] %in% el[,2])){
-          #  el_red <- cbind(el_red[,2], el_red[,1], NA)
-          #}
-
-          #if(network::network.size(x[[i]]) == 1){
-          #  el_red <- matrix(nrow = 0, ncol = 3)
-          #}
-
-          #m3 <- rbind(el, el_red)
-          #el <- m3[duplicated(m3[,1:2], fromLast = TRUE), , drop = TRUE]
-
-          #if(class(el) == "numeric" & length(el) == 3){
-          #  el <- t(as.matrix(el))
-          #}
-
-          network::set.network.attribute(x[[i]],att_e,net_red)
-        }
-
+        network::set.network.attribute(tmp_net,att_e,net_red)
       }
 
     }
-
-    N=length(x)
-  } else {
-    stop("Minimum size must be larger than 1.  Please adjust the min_size argument accordingly.")
+    return(tmp_net)
   }
+
+  if(forking == TRUE){
+    x <- parallel::mclapply(seq_along(x), populate_attr, mc.cores = ncpus)
+  } else {
+    x <- lapply(seq_along(x), populate_attr)
+  }
+
+  cat("Data formatting complete.", "\n")
+  N=length(x)
 
   ### From likelihoods file
   ######## Specify the pseudologlikelihood ########
@@ -265,37 +253,37 @@ ego_ergm <- function(net = NULL,
     -mstepfunction(tmp.theta,S,N,lambda,TAU,old.theta,M,form,ll0)
   }
 
-  ergm.offset <- rep(0,N)
-
-  # For every network, get an offset term to adjust for network size
-  for (i in 1:N){
-    ergm.offset[i]<- -log(network::network.size(x[[i]]))
-  }
   ego.terms <- form
 
   # fits the two-stage model which is also used to initialise the ego-ERGM EM algorithm.
 
   G <- roles
 
+  # new
   init.egoergm<-function(ego.terms, G, p.ego.terms=NULL){ #Specify function in terms of ego.terms and G{
     Nterms<-length(ego.terms) #specifying a "nterms" object as the length of the number of ego.terms
-    ergmformula <- paste("~", paste(ego.terms,collapse="+"),sep="")
-    #Specify object ergmformula - paste command has three arguments - the stuff you want to paste together
-    #, sep is how to separate them, and collapse is if you want smush it together.  This specifies ergmformula
-    #as ~ pasted together with ego terms, separated by " "
-
-    form<-ergm::ergm.update.formula(as.formula(paste("x[[i]]",ergmformula)),x[[i]] ~ .)
-    #This specifies object "Form" as an object that is a new formula that is a function of an indexed xi, according to
-    #the ergm formula that is specied above
 
     ######### fit all ego-networks #############
     if (is.null(p.ego.terms)){ #if p.ego terms is null or empty, then do the following...
-      theta<-matrix(0,N,Nterms) #Theta is set equal to a matrix filled with zeros, with N rows and Nterms columns
-      for (i in 1:N){ #For loop indexed from 1 to N - for every indexed i in the theta matrix, do ergmMPLE in the form object,
-        #with the output of the fit, which is a coefficient for the model terms for each N.
-        theta[i,]<-ergm::ergmMPLE(form,output="fit")$coef
-        # next couple of lines very ad-hoc but not an issue post EM convergence.
+      # new
+      form = form
+      fit_ergm_local <- function(i, form = NULL){
+        form <- formula(paste("x[[i]]~", paste(form,collapse="+"),sep=""))
+        #Specify object ergmformula - paste command has three arguments - the stuff you want to paste together
+        #, sep is how to separate them, and collapse is if you want smush it together.  This specifies ergmformula
+        #as ~ pasted together with ego terms, separated by " "
+        # form<-stats::update.formula(paste("x[[i]]",ergmformula),x[[i]] ~ .)
+        fit = ergm::ergmMPLE(form,output="fit")$coef
+        return(list(fit))
       }
+      if(forking == TRUE){
+        theta <- parallel::mclapply(seq_along(x), function(i) fit_ergm_local(i, form = form), mc.cores = ncpus)
+      } else {
+        theta <- lapply(seq_along(x), function(i) fit_ergm_local(i, form = form))
+      }
+
+      theta<- do.call(rbind, unlist(theta, recursive = FALSE))
+      # next couple of lines very ad-hoc but not an issue post EM convergence.
       theta[is.na(theta)]<-0
       theta[theta==-Inf]<- -1e6
       theta[theta==Inf]<- 1e6
@@ -319,29 +307,42 @@ ego_ergm <- function(net = NULL,
         }
       }
       lambda<-lambda/apply(lambda,1,sum) # normalise lambda
-      print("Finished kmeans initialisation")
+      cat("Finished kmeans initialization.", "\n")
     }
     return(list(theta=theta, group.theta=group.theta, lambda=lambda, G=G))
   }
 
+  set.seed(seed)
   init<-init.egoergm(ego.terms, G)
 
   ergmformula <- paste("~", paste(ego.terms,collapse="+"),sep="") # Establish function ergm formula that includes the ego.terms object
   obs.S<-list() #obs.S list that will be useful for the below for loop
-  print("Calculating all network statistics...")
-  for (i in 1:N) # for loop started
-  {
-    #obs.S[[i]]<-ergmMPLE(as.formula(paste("x[[i]]",ergmformula)),output="array") # pseudolikelihood change stats
-    obs.S[[i]]<-ergm::ergmMPLE(as.formula(paste("x[[i]]",ergmformula))) # pseudolikelihood change stats
-    obs.S[[i]]$offset<-ergm.offset[i] # for each observation term i, include an offset term in that vector
+  cat("Calculating all network statistics.","\n")
+
+  calculate_change_statistics <- function(i){
+    net<-x[[i]]
+    cs <- ergm::ergmMPLE(stats::as.formula(paste("net",ergmformula)))
+    cs$offset <- -log(network::network.size(net))
+    return(cs)
   }
+
+  ergmformula <- paste("~", paste(form,collapse="+"),sep="") # Establish function ergm formula that includes the ego.terms object
+
+  if(forking == TRUE){
+    obs.S <- parallel::mclapply(seq_along(x), calculate_change_statistics, mc.cores = ncpus)
+  } else {
+    obs.S <- lapply(seq_along(x), calculate_change_statistics)
+  }
+
+  cat("Network statistics calculated.", "\n")
+
 
   fit.mix.egoergm<-function(ego.terms, init, obs.S, G, p.ego.terms=NULL, p.group.theta=NULL, N = length(obs.S), x = x, STEPS = 500, M)
     # Specify a function to perform EM algorithm to find ego-ERGM parameters and memberships.
   {
     Nterms<-length(ego.terms)
     ergmformula <- paste("~", paste(ego.terms,collapse="+"),sep="")
-    form<-ergm::ergm.update.formula(as.formula(paste("x[[i]]",ergmformula)),x[[i]] ~ .)
+    form<-stats::update.formula(as.formula(paste("x[[i]]",ergmformula)),x[[i]] ~ .)
     lambda<-init$lambda
     group.theta<-init$group.theta
     TAU<-apply(lambda,2,sum)/N
@@ -389,6 +390,8 @@ ego_ergm <- function(net = NULL,
     return(list(EE.BIC=EE.BIC, theta=group.theta, lambda=lambda, G=G))
   }
 
+
+  cat("EM algorithm starting.", "\n")
   out<-fit.mix.egoergm(ego.terms,init,obs.S,G)
 
   lambda<-out$lambda
@@ -397,7 +400,9 @@ ego_ergm <- function(net = NULL,
   z<-apply(lambda, 1, which.max)
   roles_out <- data.frame(Id = network::get.vertex.attribute(net, 'vertex.names'),
                           Role = z)
-
+  cat("EM algorithm completed.", "\n")
+  cat("Done.", "\n")
+  cat("Completed Time:", format(Sys.time(), "%a %b %d %X %Y"), "\n")
   return(list(model.fit = "egoERGM",
               lambda = lambda,
               group.theta = group.theta,

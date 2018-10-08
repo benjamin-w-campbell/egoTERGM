@@ -1510,7 +1510,7 @@ ego_tergm <- function(net = NULL,
   {
     Nterms<-length(form)
     ergmformula <- paste("~", paste(form,collapse="+"),sep="")
-    form<-ergm.update.formula(stats::as.formula(paste("x[[i]]",ergmformula)),x[[i]] ~ .)
+    form<-stats::update.formula(stats::as.formula(paste("x[[i]]",ergmformula)),x[[i]] ~ .)
     lambda<-init$lambda
     group.theta<-init$group.theta
     TAU<-apply(lambda,2,sum)/N
