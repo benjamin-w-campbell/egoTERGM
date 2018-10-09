@@ -9,7 +9,7 @@
 #' @param egonet_size An integer for the size of each ego-network simulated.
 #' @param seed The seed set to replicate analysis for pseudorandom number generator.
 #' @param R The number of bootstrap replications that should be used for the estimation of a bootstrapped MPLE estimated TERGM for model initialization.  Defaults to 10.
-#' @param parallel How the BTERGM should be computed, either with parallel processing ("multicore", "snow") or no parallel processing ("no").  Defaults to no.
+#' @param forking If parallelization via forking should be used (TRUE) or if no parallel processing should be used (FALSE).  Currently, sockets are not supported.
 #' @param ncpus The number of CPUs that should should be used for estimation, defaults to 1.
 #' @param steps The number of default EM steps that should be taken, defaults to 50.
 #' @param tol The difference in parameter estimates between EM iterations to determine if the algorithm has converged.  Defaults to 1e-6.
@@ -32,8 +32,9 @@
 #'                   N_per_role = 10,
 #'                   t_steps = 3,
 #'                   egonet_size = 20,
+#'                   seed = 12345,
 #'                   R = 30,
-#'                   parallel = "multicore",
+#'                   forking = FALSE
 #'                   ncpus = 1,
 #'                   steps = 50,
 #'                   tol = 1e-6)
@@ -41,7 +42,8 @@
 #' @export
 
 sim_egonets <- function(form = NULL, params = NULL, roles = NULL, N_per_role = NULL, t_steps = NULL, egonet_size = NULL,
-                        R = 10, parallel = "no", ncpus = 1, steps = 50, tol = 1e-6, seed = 12345){
+                        R = 10, forking = FALSE, ncpus = 1, steps = 50, tol = 1e-6, seed = 12345){
+  cat("Start Time:", format(Sys.time(), "%a %b %d %X %Y"), "\n")
   set.seed(seed)
   if(length(form) != ncol(params)){
     stop("The form argument is not of same length as the number of columns in the params matrix.  Please provide one column of simulation parameters for each term in form")
@@ -53,6 +55,9 @@ sim_egonets <- function(form = NULL, params = NULL, roles = NULL, N_per_role = N
 
   N <- roles*N_per_role
 
+  time_steps <- t_steps
+
+  cat("Simulating ego-networks according to parameters provided.", "\n")
   ### assign the egos to groups
   sim.K<-rep(NaN,N)
   sim.list <- list()
@@ -65,19 +70,22 @@ sim_egonets <- function(form = NULL, params = NULL, roles = NULL, N_per_role = N
     sim.list[[i]] <- rep(r, t_steps)
   }
 
-  ### simulate the ego
-  NN = egonet_size # number of nodes per ego
-  ergmformula <- paste("~", paste(form, collapse="+"), sep="")
-  sim.net<-list()
-  sim.x <- list()
-  for(k in 1:length(sim.K)){
+  # sim ego nets
+  time_list <- list()
+  sim_egos <- function(k){
     sim.K <- sim.list[[k]]
-    for(i in 1:t_steps){
-      sim.net[[i]]<- simulate.formula(as.formula(paste("network(NN,directed=FALSE)", ergmformula)), coef = c(params[(1:roles)[sim.K[i]],]))
+    for(i in 1:length(sim.K)){
+      net <- network::network.initialize(n = egonet_size, directed = FALSE)
+      time_list[[i]]<- simulate(object = as.formula(paste("net", "~", paste(form, collapse="+"), sep="")), coef = c(params[(1:roles)[sim.K[i]],]))
     }
-    sim.x[[k]] <- sim.net
+    return(time_list)
   }
-  sim.K <- sim.x
+
+  if(forking == TRUE){
+    sim.K <- parallel::mclapply(seq_along(sim.K), sim_egos, mc.cores = ncpus)
+  } else {
+    sim.K <- lapply(seq_along(sim.K), sim_egos)
+  }
 
   ########################################################################
   ### Likelihood functions
@@ -123,36 +131,40 @@ sim_egonets <- function(form = NULL, params = NULL, roles = NULL, N_per_role = N
   }
 
   x = sim.K
+
+
+
   ########################################################################
   ### Initialization functions
   ########################################################################
-  #Specify function in terms of ego.terms and G
-  init.egoergm <- function(form = NULL, roles = roles, p.ego.terms=NULL, R=R, parallel = parallel, ncpus = ncpus, seed = seed, N = length(x)){
+  init.egoergm <- function(form = NULL, roles = roles, p.ego.terms=NULL, R=R, seed = seed, N = length(x)){
     set.seed(seed)
     Nterms<-length(form) #specifying a "nterms" object as the length of the number of ego.terms
-    ergmformula <- paste("~", paste(form,collapse="+"),sep="")
-    #Specify object ergmformula - paste command has three arguments - the stuff you want to paste together
-    #, sep is how to separate them, and collapse is if you want smush it together.  This specifies ergmformula
-    #as ~ pasted together with ego terms, separated by " "
 
-    form<-ergm::ergm.update.formula(stats::as.formula(paste("x[[i]]",ergmformula)),x[[i]] ~ .)
     #This specifies object "Form" as an object that is a new formula that is a function of an indexed xi, according to
     #the ergm formula that is specied above
 
     ######### fit all ego-networks #############
     #if p.ego terms is null or empty, then do the following...
     if (is.null(p.ego.terms)){
-      theta<-matrix(0,N,Nterms) #Theta is set equal to a matrix filled with zeros, with N rows and Nterms columns
-      fit.list <- list()
-      for (i in 1:length(x)){#For loop indexed from 1 to N - for every indexed i in the theta matrix, do ergmMPLE in the form object,
-        #with the output of the fit, which is a coefficient for the model terms for each N.
-        # for cross sectional ERGM, ergmMPLE would be sufficient, here we need BTERGM
-        #theta[i,]<-ergmMPLE(form,output="fit")$coef
-
-        fit <- btergm::btergm(form, R=R, parallel=parallel, ncpus=ncpus, verbose = FALSE)
-        theta[i,] <- btergm::coef(fit)
-        fit.list[[i]] <- fit
+      # new
+      form = form
+      fit_btergm_local <- function(i, form = NULL){
+        form <- formula(paste("x[[i]]~", paste(form,collapse="+"),sep=""))
+        #Specify object ergmformula - paste command has three arguments - the stuff you want to paste together
+        #, sep is how to separate them, and collapse is if you want smush it together.  This specifies ergmformula
+        #as ~ pasted together with ego terms, separated by " "
+        # form<-stats::update.formula(paste("x[[i]]",ergmformula),x[[i]] ~ .)
+        fit = btergm::btergm(formula = form, R=R, verbose = FALSE)@coef
+        return(list(fit))
       }
+      if(forking == TRUE){
+        theta <- parallel::mclapply(seq_along(x), function(i) fit_btergm_local(i, form = form), mc.cores = ncpus)
+      } else {
+        theta <- lapply(seq_along(x), function(i) fit_btergm_local(i, form = form))
+      }
+
+      theta<- do.call(rbind, unlist(theta, recursive = FALSE))
       # next couple of lines very ad-hoc but not an issue post EM convergence.
       theta[is.na(theta)]<-0
       theta[theta==-Inf]<- -1e6
@@ -178,34 +190,41 @@ sim_egonets <- function(form = NULL, params = NULL, roles = NULL, N_per_role = N
         }
       }
       lambda<-lambda/apply(lambda,1,sum) # normalise lambda
-      print("Finished kmeans initialisation")
+      cat("Finished kmeans initialization.", "\n")
     }
-    return(list(theta=theta, group.theta=group.theta, lambda=lambda, roles=roles, fit.list=fit.list))
+    return(list(theta=theta, group.theta=group.theta, lambda=lambda, roles=roles))
   }
 
 
-  init<-init.egoergm(form = form, roles = roles, p.ego.terms = NULL, R = R, parallel = parallel, ncpus = ncpus, seed = seed)
+  init<-init.egoergm(form = form, roles = roles, p.ego.terms = NULL, R = R, seed = seed)
 
   ########################################################################
   ### Calculating and save change statistics
   ########################################################################
 
-  ergmformula <- paste("~", paste(form,collapse="+"),sep="") # Establish function ergm formula that includes the ego.terms object
-  obs.S<-list() #obs.S list that will be useful for the below for loop
-  print("Calculating all network statistics...")
-  for (n in 1:length(x)) {# for loop started
+  cat("Calculating all network statistics.", "\n")
+
+  calculate_change_stats <- function(i){
     ego_lists <- list()
-    temp <- x[[n]]
+    temp <- x[[i]]
     for(i in 1:length(temp)) {
       net<-temp[[i]]
       cs <- ergm::ergmMPLE(stats::as.formula(paste("net",ergmformula)))
       cs$offset <- -log(network::network.size(net))
       ego_lists[[i]] <- cs
     }
-    obs.S[[n]] <- ego_lists
+    return(ego_lists)
   }
 
-  time_steps <- t_steps
+  ergmformula <- paste("~", paste(form,collapse="+"),sep="") # Establish function ergm formula that includes the ego.terms object
+
+  if(forking == TRUE){
+    obs.S <- parallel::mclapply(seq_along(x), calculate_change_stats, mc.cores = ncpus)
+  } else {
+    obs.S <- lapply(seq_along(x), calculate_change_stats)
+  }
+
+  cat("Network statistics calculated.", "\n")
 
   ########################################################################
   ### EM Algorithm
@@ -216,7 +235,7 @@ sim_egonets <- function(form = NULL, params = NULL, roles = NULL, N_per_role = N
   {
     Nterms<-length(form)
     ergmformula <- paste("~", paste(form,collapse="+"),sep="")
-    form<-ergm.update.formula(stats::as.formula(paste("x[[i]]",ergmformula)),x[[i]] ~ .)
+    form<-stats::update.formula(stats::as.formula(paste("x[[i]]",ergmformula)),x[[i]] ~ .)
     lambda<-init$lambda
     group.theta<-init$group.theta
     TAU<-apply(lambda,2,sum)/N
@@ -269,14 +288,20 @@ sim_egonets <- function(form = NULL, params = NULL, roles = NULL, N_per_role = N
 
   LOWESTLL=-1e8
 
+  cat("EM algorithm starting.", "\n")
+
   out <- fit.mix.egoergm(form=form,init=init,obs.S,roles) # run the EM algorithm
   lambda<-out$lambda
   group.theta<-out$theta
-  EE.BIC<-out$CS.EE.BIC
+  EE.BIC<-out$EE.BIC
   TS.BIC <- out$TS.EE.BIC
   z<-apply(lambda, 1, which.max)
   roles_out <- data.frame(Id = paste0("v", 1:N),
                           Role = z)
+
+  cat("EM algorithm completed.", "\n")
+  cat("Done.", "\n")
+  cat("Completed Time:", format(Sys.time(), "%a %b %d %X %Y"), "\n")
 
   return(list(lambda = lambda,
               group.theta = group.theta,

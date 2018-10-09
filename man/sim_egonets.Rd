@@ -5,7 +5,7 @@
 \title{Simulation of longitudinal ego-networks according to a mixture of data generating processes and fitting of ego-TERGM to that network.}
 \usage{
 sim_egonets(form = NULL, params = NULL, roles = NULL, N_per_role = NULL,
-  t_steps = NULL, egonet_size = NULL, R = 10, parallel = "no",
+  t_steps = NULL, egonet_size = NULL, R = 10, forking = FALSE,
   ncpus = 1, steps = 50, tol = 1e-06, seed = 12345)
 }
 \arguments{
@@ -23,7 +23,7 @@ sim_egonets(form = NULL, params = NULL, roles = NULL, N_per_role = NULL,
 
 \item{R}{The number of bootstrap replications that should be used for the estimation of a bootstrapped MPLE estimated TERGM for model initialization.  Defaults to 10.}
 
-\item{parallel}{How the BTERGM should be computed, either with parallel processing ("multicore", "snow") or no parallel processing ("no").  Defaults to no.}
+\item{forking}{If parallelization via forking should be used (TRUE) or if no parallel processing should be used (FALSE).  Currently, sockets are not supported.}
 
 \item{ncpus}{The number of CPUs that should should be used for estimation, defaults to 1.}
 
@@ -47,8 +47,9 @@ net <- sim_egonets(form = c("edges", "gwesp(0.8,fixed=TRUE)", "gwdegree(decay=0.
                   N_per_role = 10,
                   t_steps = 3,
                   egonet_size = 20,
+                  seed = 12345,
                   R = 30,
-                  parallel = "multicore",
+                  forking = FALSE
                   ncpus = 1,
                   steps = 50,
                   tol = 1e-6)
