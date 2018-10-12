@@ -1426,7 +1426,7 @@ ego_tergm <- function(net = NULL,
       # new
       form = form
       fit_btergm_local <- function(i, form = NULL){
-        form <- formula(paste("x[[i]]~", paste(form,collapse="+"),sep=""))
+        form <- stats::formula(paste("x[[i]]~", paste(form,collapse="+"),sep=""))
         #Specify object ergmformula - paste command has three arguments - the stuff you want to paste together
         #, sep is how to separate them, and collapse is if you want smush it together.  This specifies ergmformula
         #as ~ pasted together with ego terms, separated by " "

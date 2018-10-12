@@ -196,7 +196,7 @@ stability_validation <- function(ego_tergm_fit = NULL,
 
   # reorder matrix by name, preserving order
   if(forking == TRUE){
-    net2 <- parallel::lapply(YT2, function(x) network::network(x, directed = directed), mc.cores = ncpus) #network object based upon the network matrix y which takes y and transforms it by	causing nodes to "jump backwards across links at the second step"
+    net2 <- parallel::mclapply(YT2, function(x) network::network(x, directed = directed), mc.cores = ncpus) #network object based upon the network matrix y which takes y and transforms it by	causing nodes to "jump backwards across links at the second step"
     xt<-parallel::mclapply(net2, function(x) neighborhood_extract(x), mc.cores = ncpus)
   } else {
     net2 <- lapply(YT2, function(x) network::network(x, directed = directed)) #network object based upon the network matrix y which takes y and transforms it by	causing nodes to "jump backwards across links at the second step"
@@ -1433,7 +1433,7 @@ stability_validation <- function(ego_tergm_fit = NULL,
       # new
       form = form
       fit_btergm_local <- function(i, form = NULL){
-        form <- formula(paste("x[[i]]~", paste(form,collapse="+"),sep=""))
+        form <- stats::formula(paste("x[[i]]~", paste(form,collapse="+"),sep=""))
         #Specify object ergmformula - paste command has three arguments - the stuff you want to paste together
         #, sep is how to separate them, and collapse is if you want smush it together.  This specifies ergmformula
         #as ~ pasted together with ego terms, separated by " "
