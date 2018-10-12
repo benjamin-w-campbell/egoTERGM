@@ -112,7 +112,7 @@ ego_tergm <- function(net = NULL,
     if(forking == TRUE){
       vertices <- unique(unlist(parallel::mclapply(net, function(x) network::get.vertex.attribute(x, 'vertex.names'), mc.cores = ncpus)))
     } else {
-      vertices <- unique(unlist(parallel::lapply(net, function(x) network::get.vertex.attribute(x, 'vertex.names'))))
+      vertices <- unique(unlist(lapply(net, function(x) network::get.vertex.attribute(x, 'vertex.names'))))
     }
 
     # x = net
