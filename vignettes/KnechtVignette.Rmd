@@ -2,6 +2,7 @@
 title: "Knecht Vignette"
 author: "Benjamin W. Campbell"
 date: "`r Sys.Date()`"
+geometry: margin=2cm
 output: rmarkdown::html_vignette
 bibliography: egoTERGM.bib
 vignette: >
@@ -75,7 +76,7 @@ The `ego_tergm` function requires a few arguments:
 * `edge_covariates`: In the `form` call, are edge or dyad covariates required?
 * `seed`: Seed set for replication.
 * `R`: The number of bootstrap replications for the TERGM to be used to generate initial values.
-* `parallel`: Should parallel computing be used? If no, specify "no", otherwise specify "snow" or "multicore".
+* `forking`: Should parallel computing via forking be used? 
 * `ncpus`: If parallel computing is to be used, how many CPUs should be used.
 * `steps`: The maximum number of steps that the EM process should go through.
 * `tol`: The acceptance level to assess the convergence of the EM algorithm.
@@ -92,7 +93,7 @@ ego_tergm_fit <- ego_tergm(net = net,
                            edge_covariates = FALSE,
                            seed = 12345,
                            R = 10,
-                           parallel = "no",
+                           forking = FALSE,
                            ncpus = 1,
                            steps = 50,
                            tol = 1e-06)
