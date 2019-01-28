@@ -18,8 +18,7 @@
 
 interpret_ego_tergm <- function(ego_tergm_fit = NULL, custom_var_names = NULL){
   role_names <- paste0("Role", rep(1:ncol(ego_tergm_fit$lambda)))
-  mixing_proportions <- as.matrix(lapply(c(1:3), function(x) mean(ego_tergm_fit$lambda[,x])), nrow = ncol(ego_tergm_fit$lambda), ncol = 1)
-
+  mixing_proportions <- as.matrix(lapply(c(1:ncol(ego_tergm_fit$lambda)), function(x) mean(ego_tergm_fit$lambda[, x])), nrow = ncol(ego_tergm_fit$lambda), ncol = 1)
   if(is.null(custom_var_names)){
     centroids <- cbind(mixing_proportions, ego_tergm_fit$group.theta)
     colnames(centroids) <- c("Mixing Proportions", ego_tergm_fit$form)
