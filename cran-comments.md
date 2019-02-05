@@ -1,12 +1,12 @@
 ---
 title: "cran-comments.md"
 author: Benjamin W. Campbell
-date: 18 April, 2018
+date: 5 Feb, 2019
 output: md_document
 ---
 
 ## Test environments
-* local OS X install, R 3.4.4
+* local OS X install, R 3.5.2
 * win-builder (devel and release)
 
 ## R CMD check results
