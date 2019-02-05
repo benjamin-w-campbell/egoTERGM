@@ -110,7 +110,7 @@ ego_tergm <- function(net = NULL,
   if(add_drop==TRUE){
     # get all of the vertices that ever appear in the longitudinal network
     if(forking == TRUE){
-      vertices <- unique(unlist(parallel::mclapply(net, function(x) network::get.vertex.attribute(x, 'vertex.names'), mc.cores = ncpus)))
+      vertices <- unique(unlist(parallel::mclapply(net, function(x) network::get.vertex.attribute(x, 'vertex.names'), mc.cores = ncpus, mc.preschedule = FALSE))))
     } else {
       vertices <- unique(unlist(lapply(net, function(x) network::get.vertex.attribute(x, 'vertex.names'))))
     }
@@ -132,7 +132,7 @@ ego_tergm <- function(net = NULL,
     # apply the add_setdiff function across all networks
     # if forking is allowed, mclapply, if not, lapply
     if(forking == TRUE){
-      net <- parallel::mclapply(net, function(x) add_setdiff(x), mc.cores = ncpus)
+      net <- parallel::mclapply(net, function(x) add_setdiff(x), mc.cores = ncpus, mc.preschedule = FALSE)
     } else {
       net <- lapply(net, function(x) add_setdiff(x))
     }
@@ -146,7 +146,7 @@ ego_tergm <- function(net = NULL,
 
   # Now create network as matrix YT, either through forking or not
   if(forking == TRUE){
-    YT <- parallel::mclapply(net, function(x) network::as.matrix.network(x), mc.cores = ncpus)
+    YT <- parallel::mclapply(net, function(x) network::as.matrix.network(x), mc.cores = ncpus, mc.preschedule = FALSE)
   } else {
     YT <- lapply(net, function(x) network::as.matrix.network(x))
   }
@@ -162,8 +162,8 @@ ego_tergm <- function(net = NULL,
   # This is used to force all networks to be either undirected or directed.
   if(directed == FALSE){
     if(forking == TRUE){
-      YT2 <- parallel::mclapply(YT, function(x) x+t(x), mc.cores = ncpus)
-      YT2 <- parallel::mclapply(YT2, function(x) recode(x), mc.cores = ncpus)
+      YT2 <- parallel::mclapply(YT, function(x) x+t(x), mc.cores = ncpus,mc.preschedule = FALSE)
+      YT2 <- parallel::mclapply(YT2, function(x) recode(x), mc.cores = ncpus,mc.preschedule = FALSE)
     } else {
       YT2 <- lapply(YT, function(x) x+t(x))
       YT2 <- lapply(YT2, function(x) recode(x))
@@ -171,7 +171,7 @@ ego_tergm <- function(net = NULL,
   } else {
     YT2 <- YT
     if(forking == TRUE){
-      YT2 <- parallel::mclapply(YT2, function(x) recode(x), mc.cores = ncpus)
+      YT2 <- parallel::mclapply(YT2, function(x) recode(x), mc.cores = ncpus,mc.preschedule = FALSE)
     } else {
       YT2 <- lapply(YT2, function(x) recode(x))
     }
@@ -179,7 +179,7 @@ ego_tergm <- function(net = NULL,
 
   # rewrite the original network objects to make sure they're all directed as they're supposed to be
   if(forking == TRUE){
-    net2 <- parallel::mclapply(YT2, function(x) network::network(x, directed = directed), mc.cores = ncpus)
+    net2 <- parallel::mclapply(YT2, function(x) network::network(x, directed = directed), mc.cores = ncpus,mc.preschedule = FALSE)
   } else {
     net2 <- lapply(YT2, function(x) network::network(x, directed = directed)) #network object based upon the network matrix y which takes y and transforms it by	causing nodes to "jump backwards across links at the second step"
   }
@@ -193,7 +193,7 @@ ego_tergm <- function(net = NULL,
   #This chunk returns a vector obtained by applying a function to vertex neighborhoods in a certain order. Here, this has the net2 object as the input graph, the margin of x to be used in calculating the network so that it is includin both rows and columns (total) = that's the second object in this function.
   #This does it for all nodes 1 through N, applying the star function with a maximum distance of K in which neighborhoods are taken.
   if(forking == TRUE){
-    xt <- parallel::mclapply(net2, function(x) neighborhood_extract(x), mc.cores = ncpus)
+    xt <- parallel::mclapply(net2, function(x) neighborhood_extract(x), mc.cores = ncpus,mc.preschedule = FALSE)
   } else {
     xt <- lapply(net2, function(x) neighborhood_extract(x))
   }
@@ -216,9 +216,9 @@ ego_tergm <- function(net = NULL,
     # loop over each node from time_period's list of node-based neighborhoods and reduce the
     # broader adjacency matrix Y to the ego-network's adjacency matrix and save that in n
     if(forking == TRUE){
-      x<-parallel::mclapply(seq_along(time_period), reduce_adjacency, mc.cores = ncpus)
+      x<-parallel::mclapply(seq_along(time_period), reduce_adjacency, mc.cores = ncpus,mc.preschedule = FALSE)
       # make all the adjacency matrices into network objects
-      x<-parallel::mclapply(x, function(x) network::as.network.matrix(x, directed=directed), mc.cores = ncpus)
+      x<-parallel::mclapply(x, function(x) network::as.network.matrix(x, directed=directed), mc.cores = ncpus,mc.preschedule = FALSE)
     } else {
       x<-lapply(seq_along(time_period), reduce_adjacency)
       x<-lapply(x, function(x) network::as.network.matrix(x, directed=directed))
@@ -231,14 +231,16 @@ ego_tergm <- function(net = NULL,
   rearrange_format <- function(i){
     time_list <- list()
     for(ti in 1:time_steps){
-      nit <- xt[[ti]][[i]]
-      time_list[[ti]] <- nit
+      if(length(xt[[ti]]) != 0){
+        nit <- xt[[ti]][[i]]
+        time_list[[ti]] <- nit
+      }
     }
     return(time_list)
   }
 
   if(forking == TRUE){
-    xt <- parallel::mclapply(as.list(1:N), rearrange_format, mc.cores =2)
+    xt <- parallel::mclapply(as.list(1:N), rearrange_format, mc.cores =ncpus,mc.preschedule = FALSE)
   } else {
     xt <- lapply(as.list(1:N), rearrange_format)
   }
@@ -251,8 +253,13 @@ ego_tergm <- function(net = NULL,
   # create function that evaluates the size of each ego-network and determine if they're large enough to be included
   for(i in 1:length(xt)){
     ego <- xt[[i]]
+    keep_vec <- rep(FALSE, times = length(ego))
+    net_indices <- which(unlist(lapply(ego, class) == "network")==TRUE)
+    non_net_indices <- which(unlist(lapply(ego, class) == "network")==FALSE)
+    ego <- ego[net_indices]
     keep <- lapply(ego, network::network.size)>=min_size
-    keep_mat[i,] <- keep
+    keep_vec[net_indices] <- keep
+    keep_mat[i,] <- keep_vec
   }
 
   # Unname the list
@@ -275,43 +282,43 @@ ego_tergm <- function(net = NULL,
     if(is.null(nrow(red_net[keep_mat[,t],keep_mat[,t]])) || nrow(red_net[keep_mat[,t],keep_mat[,t]]) == 0){
       red_net <- NA
     } else {
-      red_net <- network::delete.vertices(x = time_slice, vid = which(get.vertex.attribute(time_slice, 'vertex.names') %in% get.vertex.attribute(time_slice, 'vertex.names')[keep_mat[,t]==FALSE]))
+      red_net <- network::delete.vertices(x = time_slice, vid = which(network::get.vertex.attribute(time_slice, 'vertex.names') %in% network::get.vertex.attribute(time_slice, 'vertex.names')[keep_mat[,t]==FALSE]))
     }
 
     # If the reduced network is of size zero
     #if(network::network.size(red_net) != 0){
     #  for(att in network::list.vertex.attributes(time_slice)){
     #
-     #   vals <- network::get.vertex.attribute(time_slice,att)
+    #   vals <- network::get.vertex.attribute(time_slice,att)
     #    names(vals) <- network::get.vertex.attribute(time_slice, 'vertex.names')
 
-#        to_match <- network::get.vertex.attribute(red_net, 'vertex.names')
- #       red_vals <- vals[to_match]
+    #        to_match <- network::get.vertex.attribute(red_net, 'vertex.names')
+    #       red_vals <- vals[to_match]
 
-#        network::set.vertex.attribute(red_net,att,red_vals)
-#      }
-#      if(edge_covariates == TRUE){
-#        for(att_e in setdiff(network::list.network.attributes(time_slice), c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"))){
-#          # setting edge attributes harder given how they're stored
-#          if(att_e != "na"){
-#            adj <- as.matrix(time_slice, matrix.type = "adjacency")
-#            adj <- adj[order(as.integer(colnames(adj))),order(as.integer(colnames(adj)))]
-#
-#            net_att <- network::get.network.attribute(time_slice, att_e)
-#
-#            colnames(net_att) <- get.vertex.attribute(orig_nets[[t]], 'vertex.names')
-#            rownames(net_att) <- get.vertex.attribute(orig_nets[[t]], 'vertex.names')
+    #        network::set.vertex.attribute(red_net,att,red_vals)
+    #      }
+    #      if(edge_covariates == TRUE){
+    #        for(att_e in setdiff(network::list.network.attributes(time_slice), c("bipartite", "directed", "hyper", "loops", "mnext", "multiple", "n"))){
+    #          # setting edge attributes harder given how they're stored
+    #          if(att_e != "na"){
+    #            adj <- as.matrix(time_slice, matrix.type = "adjacency")
+    #            adj <- adj[order(as.integer(colnames(adj))),order(as.integer(colnames(adj)))]
+    #
+    #            net_att <- network::get.network.attribute(time_slice, att_e)
+    #
+    #            colnames(net_att) <- network::get.vertex.attribute(orig_nets[[t]], 'vertex.names')
+    #            rownames(net_att) <- network::get.vertex.attribute(orig_nets[[t]], 'vertex.names')
 
-#            adj_red <- as.matrix(red_net, matrix.type = "adjacency")
-#            vertices_red <- rownames(adj_red)
-#            net_red <- net_att[vertices_red, vertices_red]
-#
-#            network::set.network.attribute(red_net,att_e,net_red)
-#
- #         }
-#        }
-  #    }
-#    }
+    #            adj_red <- as.matrix(red_net, matrix.type = "adjacency")
+    #            vertices_red <- rownames(adj_red)
+    #            net_red <- net_att[vertices_red, vertices_red]
+    #
+    #            network::set.network.attribute(red_net,att_e,net_red)
+    #
+    #         }
+    #        }
+    #    }
+    #    }
     red_net_list[[t]] <- red_net
   }
   reduced_networks <- red_net_list
@@ -394,7 +401,7 @@ ego_tergm <- function(net = NULL,
   }
 
   if(forking == TRUE){
-    xt <- parallel::mclapply(seq_along(orig_xt), populate_attributes, mc.cores = ncpus)
+    xt <- parallel::mclapply(seq_along(orig_xt), populate_attributes, mc.cores = ncpus, mc.preschedule = FALSE)
   } else {
     xt <- lapply(seq_along(orig_xt), populate_attributes)
   }
@@ -459,8 +466,8 @@ ego_tergm <- function(net = NULL,
 
   # Variation on Leifeld's btergm function to overcome errors from separation.
   createBtergm_local <-function(coef, boot, R, nobs, time.steps, formula, formula2,
-            response, effects, weights, auto.adjust, offset, directed,
-            bipartite, nvertices, data){
+                                response, effects, weights, auto.adjust, offset, directed,
+                                bipartite, nvertices, data){
     new("btergm", coef = coef, boot = boot, R = R, nobs = nobs,
         time.steps = time.steps, formula = formula, formula2 = formula2,
         response = response, effects = effects, weights = weights,
@@ -773,7 +780,7 @@ ego_tergm <- function(net = NULL,
         }
 
         timecov <- function(covariate, minimum = 1, maximum = length(covariate),
-                             transform = function(t) 1 + (0 * t) + (0 * t^2), onlytime = FALSE)
+                            transform = function(t) 1 + (0 * t) + (0 * t^2), onlytime = FALSE)
         {
           if (class(covariate) != "list") {
             stop("'covariate' must be a list of matrices or network objects.")
@@ -1259,8 +1266,8 @@ ego_tergm <- function(net = NULL,
   }
 
   btergm_local <- function(formula, R = 500, offset = FALSE, returndata = FALSE,
-                            parallel = c("no", "multicore", "snow"), ncpus = 1, cl = NULL,
-                            verbose = TRUE, ...){
+                           parallel = c("no", "multicore", "snow"), ncpus = 1, cl = NULL,
+                           verbose = TRUE, ...){
     l <- tergmprepare_local(formula = formula, offset = offset, verbose = verbose)
     for (i in 1:length(l$covnames)) {
       assign(l$covnames[i], l[[l$covnames[i]]])
@@ -1401,8 +1408,8 @@ ego_tergm <- function(net = NULL,
     }
     data$offsmat <- l$offsmat
     btergm.object <- createBtergm_local(startval, coefs, R, nobs, l$time.steps,
-                                           formula, l$form, Y, x, W, l$auto.adjust, offset, l$directed,
-                                           l$bipartite, nvertices = l$nvertices, data)
+                                        formula, l$form, Y, x, W, l$auto.adjust, offset, l$directed,
+                                        l$bipartite, nvertices = l$nvertices, data)
     if (verbose == TRUE) {
       message("Done.")
     }
@@ -1435,12 +1442,15 @@ ego_tergm <- function(net = NULL,
         return(list(fit))
       }
       if(forking == TRUE){
-        theta <- parallel::mclapply(seq_along(x), function(i) fit_btergm_local(i, form = form), mc.cores = ncpus)
+        theta <- parallel::mclapply(seq_along(x), function(i) fit_btergm_local(i, form = form), mc.cores = ncpus, mc.preschedule = FALSE))
       } else {
         theta <- lapply(seq_along(x), function(i) fit_btergm_local(i, form = form))
       }
 
       theta<- do.call(rbind, unlist(theta, recursive = FALSE))
+      # recode to numeric (makes any errors into na)
+      theta <- apply(theta, 2, as.numeric)
+
       # next couple of lines very ad-hoc but not an issue post EM convergence.
       theta[is.na(theta)]<-0
       theta[theta==-Inf]<- -1e6
@@ -1494,7 +1504,7 @@ ego_tergm <- function(net = NULL,
   ergmformula <- paste("~", paste(form,collapse="+"),sep="") # Establish function ergm formula that includes the ego.terms object
 
   if(forking == TRUE){
-    obs.S <- parallel::mclapply(seq_along(x), calculate_change_stats, mc.cores = ncpus)
+    obs.S <- parallel::mclapply(seq_along(x), calculate_change_stats, mc.cores = ncpus, mc.preschedule = FALSE))
   } else {
     obs.S <- lapply(seq_along(x), calculate_change_stats)
   }
