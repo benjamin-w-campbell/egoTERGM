@@ -1442,7 +1442,7 @@ ego_tergm <- function(net = NULL,
         return(list(fit))
       }
       if(forking == TRUE){
-        theta <- parallel::mclapply(seq_along(x), function(i) fit_btergm_local(i, form = form), mc.cores = ncpus, mc.preschedule = FALSE))
+        theta <- parallel::mclapply(seq_along(x), function(i) fit_btergm_local(i, form = form), mc.cores = ncpus, mc.preschedule = FALSE)
       } else {
         theta <- lapply(seq_along(x), function(i) fit_btergm_local(i, form = form))
       }
@@ -1504,7 +1504,7 @@ ego_tergm <- function(net = NULL,
   ergmformula <- paste("~", paste(form,collapse="+"),sep="") # Establish function ergm formula that includes the ego.terms object
 
   if(forking == TRUE){
-    obs.S <- parallel::mclapply(seq_along(x), calculate_change_stats, mc.cores = ncpus, mc.preschedule = FALSE))
+    obs.S <- parallel::mclapply(seq_along(x), calculate_change_stats, mc.cores = ncpus, mc.preschedule = FALSE)
   } else {
     obs.S <- lapply(seq_along(x), calculate_change_stats)
   }

@@ -4,8 +4,8 @@
 \alias{plot_ego_tergm}
 \title{Function to plot role assignments.}
 \usage{
-plot_ego_tergm(ego_tergm_fit = NULL, plot_indices = NULL, node.size = 6,
-  edge.size = 1, edge.color = "grey")
+plot_ego_tergm(ego_tergm_fit = NULL, plot_indices = NULL,
+  node.size = 6, edge.size = 1, edge.color = "grey")
 }
 \arguments{
 \item{ego_tergm_fit}{The output from a fitted "ego_tergm".}

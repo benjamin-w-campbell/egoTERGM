@@ -5,8 +5,9 @@
 \title{Estimation of ego-Exponential Random Graph Model (ego-ERGM) using Expectation Maximization (EM) as per Salter-Townshend and Murphy (2015).}
 \usage{
 ego_ergm(net = NULL, form = NULL, core_size = 1, min_size = 5,
-  roles = 3, directed = TRUE, edge_covariates = FALSE, seed = 12345,
-  forking = FALSE, ncpus = 1, steps = 50, tol = 1e-06)
+  roles = 3, directed = TRUE, edge_covariates = FALSE,
+  seed = 12345, forking = FALSE, ncpus = 1, steps = 50,
+  tol = 1e-06)
 }
 \arguments{
 \item{net}{The cross-sectional network that an ego-ERGM will be fit on.  Must be presented as a network object.  Any vertex attributes should be attached to networks.  Currently the function does not support comparisons of whole networks.}

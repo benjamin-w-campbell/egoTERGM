@@ -5,9 +5,9 @@
 \title{Estimation of ego-Temporal Exponential Random Graph Model (ego-TERGM) using Expectation Maximization (EM).}
 \usage{
 ego_tergm(net = NULL, form = NULL, core_size = 1, min_size = 5,
-  roles = 3, add_drop = TRUE, directed = TRUE, edge_covariates = FALSE,
-  seed = 12345, R = 10, forking = FALSE, ncpus = 1, steps = 50,
-  tol = 1e-06)
+  roles = 3, add_drop = TRUE, directed = TRUE,
+  edge_covariates = FALSE, seed = 12345, R = 10, forking = FALSE,
+  ncpus = 1, steps = 50, tol = 1e-06)
 }
 \arguments{
 \item{net}{The longitudinally observed network that an ego-TERGM will be fit on.  Must be presented as a list of networks.  Any vertex attributes should be attached to networks.  Currently the function does not support comparisons of whole networks.}

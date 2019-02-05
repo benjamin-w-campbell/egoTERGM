@@ -4,9 +4,10 @@
 \alias{sim_egonets}
 \title{Simulation of longitudinal ego-networks according to a mixture of data generating processes and fitting of ego-TERGM to that network.}
 \usage{
-sim_egonets(form = NULL, params = NULL, roles = NULL, N_per_role = NULL,
-  t_steps = NULL, egonet_size = NULL, R = 10, forking = FALSE,
-  ncpus = 1, steps = 50, tol = 1e-06, seed = 12345)
+sim_egonets(form = NULL, params = NULL, roles = NULL,
+  N_per_role = NULL, t_steps = NULL, egonet_size = NULL, R = 10,
+  forking = FALSE, ncpus = 1, steps = 50, tol = 1e-06,
+  seed = 12345)
 }
 \arguments{
 \item{form}{A vector of ERGM terms that should be used to generate the networks.}
