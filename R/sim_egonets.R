@@ -165,6 +165,7 @@ sim_egonets <- function(form = NULL, params = NULL, roles = NULL, N_per_role = N
       }
 
       theta<- do.call(rbind, unlist(theta, recursive = FALSE))
+      theta <- apply(theta, 2, as.numeric)
       # next couple of lines very ad-hoc but not an issue post EM convergence.
       theta[is.na(theta)]<-0
       theta[theta==-Inf]<- -1e6
