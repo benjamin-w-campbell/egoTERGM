@@ -236,8 +236,10 @@ stability_validation <- function(ego_tergm_fit = NULL,
   rearrange_format <- function(i){
     time_list <- list()
     for(ti in 1:time_steps){
-      nit <- xt[[ti]][[i]]
-      time_list[[ti]] <- nit
+      if(length(xt[[ti]]) != 0){
+        nit <- xt[[ti]][[i]]
+        time_list[[ti]] <- nit
+      }
     }
     return(time_list)
   }
@@ -256,8 +258,13 @@ stability_validation <- function(ego_tergm_fit = NULL,
   # create function that evaluates the size of each ego-network and determine if they're large enough to be included
   for(i in 1:length(xt)){
     ego <- xt[[i]]
+    keep_vec <- rep(FALSE, times = length(ego))
+    net_indices <- which(unlist(lapply(ego, class) == "network")==TRUE)
+    non_net_indices <- which(unlist(lapply(ego, class) == "network")==FALSE)
+    ego <- ego[net_indices]
     keep <- lapply(ego, network::network.size)>=min_size
-    keep_mat[i,] <- keep
+    keep_vec[net_indices] <- keep
+    keep_mat[i,] <- keep_vec
   }
 
   # Unname the list
@@ -280,7 +287,7 @@ stability_validation <- function(ego_tergm_fit = NULL,
     if(is.null(nrow(red_net[keep_mat[,t],keep_mat[,t]])) || nrow(red_net[keep_mat[,t],keep_mat[,t]]) == 0){
       red_net <- NA
     } else {
-      red_net <- network::delete.vertices(x = time_slice, vid = which(get.vertex.attribute(time_slice, 'vertex.names') %in% get.vertex.attribute(time_slice, 'vertex.names')[keep_mat[,t]==FALSE]))
+      red_net <- network::delete.vertices(x = time_slice, vid = which(network::get.vertex.attribute(time_slice, 'vertex.names') %in% network::get.vertex.attribute(time_slice, 'vertex.names')[keep_mat[,t]==FALSE]))
     }
 
     # If the reduced network is of size zero
@@ -399,7 +406,7 @@ stability_validation <- function(ego_tergm_fit = NULL,
   }
 
   if(forking == TRUE){
-    xt <- parallel::mclapply(seq_along(orig_xt), populate_attributes, mc.cores = ncpus, , mc.preschedule = FALSE)
+    xt <- parallel::mclapply(seq_along(orig_xt), populate_attributes, mc.cores = ncpus, mc.preschedule = FALSE)
   } else {
     xt <- lapply(seq_along(orig_xt), populate_attributes)
   }
@@ -1448,6 +1455,8 @@ stability_validation <- function(ego_tergm_fit = NULL,
       }
 
       theta<- do.call(rbind, unlist(theta, recursive = FALSE))
+      # recode to numeric (makes any errors into na)
+      theta <- apply(theta, 2, as.numeric)
       # next couple of lines very ad-hoc but not an issue post EM convergence.
       theta[is.na(theta)]<-0
       theta[theta==-Inf]<- -1e6
