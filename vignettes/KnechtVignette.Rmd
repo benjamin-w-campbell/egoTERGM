@@ -1,6 +1,6 @@
 ---
 title: "Knecht Vignette"
-author: "Benjamin W. Campbell"
+author: "Benjamin W. Campbell, The Ohio State University"
 date: "`r Sys.Date()`"
 geometry: margin=2cm
 output: rmarkdown::html_vignette
@@ -12,7 +12,7 @@ vignette: >
 ---
 
 ## Vignette Info and Introduction
-  This vignette uses the `Knecht` data from Knecht (2006) and Knecht (2008) to provide an illustrative example of estimating an ego-Temporal Exponential Random Graph Model (ego-TERGM) using the `egoTERGM` package [@knecht2006networks, @knecht2008friendship].  It begins by estimating an ego-TERGM on the Knecht friendship network, a network of 26 students in a Dutch classroom measured across four time-periods.  In addition to data on the friendships between students there is nodal attribute data on a variety of demographic and behavioral factors.  For a detailed explanation of the data, I refer the reader to the original publications on the data or to the `xergm.common` help page for the `knecht` data: `??knecht`.  
+  This vignette uses the `Knecht` data from Knecht (2006) and Knecht (2008) to provide an illustrative example of estimating an ego-Temporal Exponential Random Graph Model (ego-TERGM) using the `egoTERGM` package [@knecht2006networks].  It begins by estimating an ego-TERGM on the Knecht friendship network, a network of 26 students in a Dutch classroom measured across four time-periods.  In addition to data on the friendships between students there is nodal attribute data on a variety of demographic and behavioral factors.  For a detailed explanation of the data, I refer the reader to the original publications on the data or to the `xergm.common` help page for the `knecht` data: `??knecht`.  
 
 Much of the code for estimating the ego-TERGM is a modification of code originally produced for its cross-sectional equivalent [@salter2015role]. This vignette will proceed step-by-step in presenting the typical workflow for estimating and interpreting an ego-TERGM using `egoTERGM`.  
 
@@ -84,7 +84,8 @@ The `ego_tergm` function requires a few arguments:
 ```{r, eval = FALSE}
 library(egoTERGM)
 ego_tergm_fit <- ego_tergm(net = net,
-                           form = c("edges", "mutual", "triangle", "nodeicov('idegsqrt')", "nodeocov('odegsqrt')",  "nodematch('sex')"),
+                           form = c("edges", "mutual", "triangle", "nodeicov('idegsqrt')", 
+                                    "nodeocov('odegsqrt')",  "nodematch('sex')"),
                            core_size = 1,
                            min_size = 5,
                            roles = 3,
@@ -115,10 +116,14 @@ To assist in interpreting the role generative structure of role assignments, I h
 ```{r, eval = FALSE}
 net_list <- prepare_for_tergm(ego_tergm_fit = ego_tergm_fit)
 
-# Indexing of the output for prepare_for_tergm refers to the role numbering from initial ego_tergm_fit
+# Indexing of the output for prepare_for_tergm refers to the 
+# role numbering from initial ego_tergm_fit
 role1_btergm <- btergm(net_list[[1]] ~ edges + mutual + triangle + nodeicov('idegsqrt') +
                                         nodeocov('odegsqrt') + nodematch('sex'),
                         R = 500)
+
+# You could then continue this for all remaining network sets
+# in net_list
 
 ```
 
