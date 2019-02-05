@@ -129,9 +129,9 @@ ego_ergm <- function(net = NULL,
   }
 
   if(forking == TRUE){
-    x<-parallel::mclapply(seq_along(x), reduce_adjacency, mc.cores = ncpus)
+    x<-parallel::mclapply(seq_along(x), reduce_adjacency, mc.cores = ncpus, mc.preschedule = FALSE)
     # make all the adjacency matrices into network objects
-    x<-parallel::mclapply(x, function(x) network::as.network.matrix(x, directed=directed), mc.cores = ncpus)
+    x<-parallel::mclapply(x, function(x) network::as.network.matrix(x, directed=directed), mc.cores = ncpus, mc.preschedule = FALSE)
   } else {
     x<-lapply(seq_along(x), reduce_adjacency)
     x<-lapply(x, function(x) network::as.network.matrix(x, directed=directed))
@@ -140,7 +140,7 @@ ego_ergm <- function(net = NULL,
   rm(Y2,net2)
 
   if(forking == TRUE){
-    keep<-parallel::mclapply(x, network::network.size, mc.cores = ncpus)>=min_size
+    keep<-parallel::mclapply(x, network::network.size, mc.cores = ncpus, mc.preschedule = FALSE)>=min_size
   } else {
     keep<-lapply(x,network::network.size)>=min_size
   }
@@ -207,7 +207,7 @@ ego_ergm <- function(net = NULL,
   }
 
   if(forking == TRUE){
-    x <- parallel::mclapply(seq_along(x), populate_attr, mc.cores = ncpus)
+    x <- parallel::mclapply(seq_along(x), populate_attr, mc.cores = ncpus, mc.preschedule = FALSE)
   } else {
     x <- lapply(seq_along(x), populate_attr)
   }
@@ -277,7 +277,7 @@ ego_ergm <- function(net = NULL,
         return(list(fit))
       }
       if(forking == TRUE){
-        theta <- parallel::mclapply(seq_along(x), function(i) fit_ergm_local(i, form = form), mc.cores = ncpus)
+        theta <- parallel::mclapply(seq_along(x), function(i) fit_ergm_local(i, form = form), mc.cores = ncpus, mc.preschedule = FALSE)
       } else {
         theta <- lapply(seq_along(x), function(i) fit_ergm_local(i, form = form))
       }
@@ -329,7 +329,7 @@ ego_ergm <- function(net = NULL,
   ergmformula <- paste("~", paste(form,collapse="+"),sep="") # Establish function ergm formula that includes the ego.terms object
 
   if(forking == TRUE){
-    obs.S <- parallel::mclapply(seq_along(x), calculate_change_statistics, mc.cores = ncpus)
+    obs.S <- parallel::mclapply(seq_along(x), calculate_change_statistics, mc.cores = ncpus, mc.preschedule = FALSE)
   } else {
     obs.S <- lapply(seq_along(x), calculate_change_statistics)
   }
