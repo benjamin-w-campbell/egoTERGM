@@ -283,6 +283,7 @@ ego_ergm <- function(net = NULL,
       }
 
       theta<- do.call(rbind, unlist(theta, recursive = FALSE))
+      theta <- apply(theta, 2, as.numeric)
       # next couple of lines very ad-hoc but not an issue post EM convergence.
       theta[is.na(theta)]<-0
       theta[theta==-Inf]<- -1e6
