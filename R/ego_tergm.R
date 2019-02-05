@@ -110,7 +110,7 @@ ego_tergm <- function(net = NULL,
   if(add_drop==TRUE){
     # get all of the vertices that ever appear in the longitudinal network
     if(forking == TRUE){
-      vertices <- unique(unlist(parallel::mclapply(net, function(x) network::get.vertex.attribute(x, 'vertex.names'), mc.cores = ncpus, mc.preschedule = FALSE))))
+      vertices <- unique(unlist(parallel::mclapply(net, function(x) network::get.vertex.attribute(x, 'vertex.names'), mc.cores = ncpus, mc.preschedule = FALSE)))
     } else {
       vertices <- unique(unlist(lapply(net, function(x) network::get.vertex.attribute(x, 'vertex.names'))))
     }
