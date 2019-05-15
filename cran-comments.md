@@ -1,7 +1,7 @@
 ---
 title: "cran-comments.md"
 author: Benjamin W. Campbell
-date: 5 Feb, 2019
+date: 15 May, 2019
 output: md_document
 ---
 
@@ -15,6 +15,6 @@ output: md_document
 
 ## Reverse dependencies
 
-This is a new release, so there are no reverse dependencies.
+There are no reverse dependencies.
 
 
