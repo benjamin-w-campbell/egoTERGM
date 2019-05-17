@@ -7,7 +7,7 @@ output: md_document
 
 ## Test environments
 * local OS X install, R 3.6.0
-* win-builder (devel, release, old version)
+* win-builder (devel, release)
 
 ## R CMD check results
 
